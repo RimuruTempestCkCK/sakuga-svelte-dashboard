@@ -28,6 +28,7 @@
       <circle cx="65" cy="65" r={R} fill="none" stroke="var(--chip)" stroke-width="16" />
       {#each segments as seg}
         <circle
+          role="presentation"
           cx="65"
           cy="65"
           r={R}

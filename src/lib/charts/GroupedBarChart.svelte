@@ -49,6 +49,7 @@
         {@const startX = groupX + (groupW - totalBarsW) / 2}
 
         <g
+          role="presentation"
           onmouseenter={() => (hoverIdx = i)}
           onmouseleave={() => (hoverIdx = null)}
         >

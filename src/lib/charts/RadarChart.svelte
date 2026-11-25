@@ -55,6 +55,7 @@
     {#each values as v, i}
       {@const p = pointAt(i, Math.min(1, Math.max(0, v / 100)))}
       <circle
+        role="presentation"
         cx={p.x}
         cy={p.y}
         r={hoverIdx === i ? 6 : 4}

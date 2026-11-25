@@ -108,6 +108,7 @@
         {#each labels as _, i}
           {@const colW = labels.length > 1 ? plotW / (labels.length - 1) : plotW}
           <rect
+            role="presentation"
             x={getX(i) - colW / 2}
             y={PAD.top}
             width={colW}
