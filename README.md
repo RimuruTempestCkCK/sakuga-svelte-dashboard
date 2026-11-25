@@ -22,24 +22,6 @@ Setiap komponen dimuat langsung dari `public/sakuga-vfx/` menggunakan tag `<scri
 - **Tipografi:** Google Fonts (`Plus Jakarta Sans` & `JetBrains Mono`)
 - **Ikon:** Komponen SVG terpusat (`src/lib/Icon.svelte`) + custom icon & favicon (`public/sakuga-icon.png`)
 
-## Fitur & Halaman Template
-
-- **Initial Splash Loader:** Layar loading awal menggunakan `<sakuga-progress>` yang otomatis menutup saat `sakuga:done`.
-- **Header & Sidebar Responsif:**
-  - Sidebar dapat di-collapse di desktop (dengan tooltip nama menu bergaya anime saat di-hover) dan berubah menjadi drawer di mobile.
-  - Header sticky satu baris dengan pencarian real-time, toggle Dark/Light Mode, dropdown notifikasi, dan menu profil user.
-- **10 Halaman Lengkap:**
-  1. **Overview** — KPI cards, Render Pipeline `<sakuga-progress>`, Quick Studio Controls, Feed aktivitas, dan Quick Shot Modal.
-  2. **Analytics** — Grafik batang interaktif dengan filter periode `<sakuga-tabs>` dan breakdown efek VFX.
-  3. **Data Tables** — Tabel *Projects & Invoices* serta *Studio Team & Roles* lengkap dengan modal pop-up **Tambah & Edit Data**.
-  4. **Render Queue** — Antrean render dengan filter `<sakuga-tabs>`, progress bar, dan modal **Add / Edit Shot**.
-  5. **All 12 Controls** — Galeri interaktif seluruh 12 kontrol `sakuga-vfx` beserta readout event langsung.
-  6. **Studio Form** — Contoh form terintegrasi penuh dengan `new FormData(form)`.
-  7. **Profile** — Kartu identitas dan form edit profil yang tersinkronisasi dengan Header.
-  8. **Theme & FX** — Pengaturan tema preset `--sk-*` dan preferensi efek.
-  9. **Login Page** — Template halaman Sign In full-screen.
-  10. **Register Page** — Template halaman Create Account full-screen.
-
 ## Cara Menjalankan
 
 ```bash
