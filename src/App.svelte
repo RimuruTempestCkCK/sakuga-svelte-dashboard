@@ -22,6 +22,7 @@
   import RegisterView from './lib/views/RegisterView.svelte';
   import ForgotPasswordView from './lib/views/ForgotPasswordView.svelte';
   import ResetPasswordView from './lib/views/ResetPasswordView.svelte';
+  import StatusPageView from './lib/views/StatusPageView.svelte';
   import NotFoundView from './lib/views/NotFoundView.svelte';
   import { dashboard, initDashboard, syncFromHash, setSidebarCollapsed } from './lib/store.svelte.js';
 
@@ -78,6 +79,9 @@
       dashboard.page === 'register' ||
       dashboard.page === 'forgot-password' ||
       dashboard.page === 'reset-password' ||
+      dashboard.page === '403' ||
+      dashboard.page === '500' ||
+      dashboard.page === 'maintenance' ||
       dashboard.page === 'not-found'
   );
 </script>
@@ -93,6 +97,8 @@
     <ForgotPasswordView />
   {:else if dashboard.page === 'reset-password'}
     <ResetPasswordView />
+  {:else if dashboard.page === '403' || dashboard.page === '500' || dashboard.page === 'maintenance'}
+    <StatusPageView mode={dashboard.page} />
   {:else}
     <NotFoundView />
   {/if}

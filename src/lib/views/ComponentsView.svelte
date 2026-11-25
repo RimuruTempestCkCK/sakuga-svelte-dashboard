@@ -10,6 +10,8 @@
   let category = $state('all');
   let demoModalOpen = $state(false);
   let demoDropdownOpen = $state(false);
+  let demoAccordionOpen = $state(true);
+  let droppedFile = $state('');
   let copiedId = $state('');
 
   function say(key, text) {
@@ -198,6 +200,38 @@
       how: 'Lightweight theme-aware loading placeholder.',
       code: '<div class="skeleton-line"></div>',
     },
+    {
+      id: 'accordion',
+      cat: 'patterns',
+      name: 'Accordion Card',
+      tag: '.accordion-card',
+      how: 'Expandable FAQ or detail section with rotating chevron.',
+      code: '<button aria-expanded={open} onclick={() => (open = !open)}>Toggle</button>',
+    },
+    {
+      id: 'timeline',
+      cat: 'patterns',
+      name: 'Timeline / Stepper',
+      tag: '.timeline',
+      how: 'Step-by-step production or order progress tracker.',
+      code: '<ul class="timeline"><li class="done">Layout</li><li>Render</li></ul>',
+    },
+    {
+      id: 'dropzone',
+      cat: 'forms',
+      name: 'File Dropzone',
+      tag: '.dropzone',
+      how: 'Click or select a file for upload preview.',
+      code: '<label class="dropzone"><input type="file" onchange={onFile} /></label>',
+    },
+    {
+      id: 'team-card',
+      cat: 'patterns',
+      name: 'Team Profile Card',
+      tag: '.team-mini-card',
+      how: 'Compact user/member card with online indicator & role badge.',
+      code: '<div class="team-mini-card">...</div>',
+    },
   ];
 
   let visibleCards = $derived.by(() => {
@@ -382,6 +416,50 @@
               <div class="skeleton-line w-60"></div>
               <div class="skeleton-line w-100"></div>
               <div class="skeleton-line w-80"></div>
+            </div>
+          {:else if item.id === 'accordion'}
+            <div class="acc-demo">
+              <button
+                type="button"
+                class="acc-btn"
+                aria-expanded={demoAccordionOpen}
+                onclick={() => (demoAccordionOpen = !demoAccordionOpen)}
+              >
+                <span>Render Export Details</span>
+                <Icon name={demoAccordionOpen ? 'chevron-down' : 'chevron-right'} size={15} />
+              </button>
+              {#if demoAccordionOpen}
+                <div class="acc-content">4K ProRes 4444 • 24 fps • Alpha Channel</div>
+              {/if}
+            </div>
+          {:else if item.id === 'timeline'}
+            <ul class="timeline-demo">
+              <li class="tl-item done"><span class="tl-dot"></span><span>Rough Keyframes</span></li>
+              <li class="tl-item done"><span class="tl-dot"></span><span>In-Between & Clean-up</span></li>
+              <li class="tl-item"><span class="tl-dot"></span><span>Final VFX Composite</span></li>
+            </ul>
+          {:else if item.id === 'dropzone'}
+            <label class="dropzone-demo">
+              <input
+                type="file"
+                class="sr-file"
+                onchange={(e) => {
+                  const f = e.target.files?.[0];
+                  droppedFile = f ? f.name : '';
+                  if (droppedFile) showToast(`Selected: ${droppedFile}`, 'info');
+                }}
+              />
+              <Icon name="upload" size={18} />
+              <span>{droppedFile || 'Click to choose file'}</span>
+            </label>
+          {:else if item.id === 'team-card'}
+            <div class="team-mini-card">
+              <span class="tm-av">YS</span>
+              <div class="tm-info">
+                <strong>Yui Sato</strong>
+                <span class="badge accent">FX Compositor</span>
+              </div>
+              <span class="online-dot" title="Online"></span>
             </div>
           {/if}
         </div>
@@ -588,6 +666,140 @@
   @keyframes pulseSk {
     0%, 100% { opacity: 0.55; }
     50% { opacity: 1; }
+  }
+
+  .acc-demo {
+    width: 100%;
+    max-width: 260px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface-alt);
+  }
+
+  .acc-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text);
+  }
+
+  .acc-content {
+    padding: 0 12px 10px;
+    font-size: 12px;
+    color: var(--mute);
+  }
+
+  .timeline-demo {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12.5px;
+  }
+
+  .tl-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mute);
+  }
+
+  .tl-item.done {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .tl-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .tl-item.done .tl-dot {
+    background: var(--sk-acc, #ff5fa8);
+    border-color: var(--sk-ink, #1d1a4a);
+  }
+
+  .dropzone-demo {
+    width: 100%;
+    max-width: 240px;
+    padding: 16px 12px;
+    border-radius: 12px;
+    border: 1.5px dashed var(--sk-soft, #b8b3ff);
+    background: var(--surface-alt);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--mute);
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .dropzone-demo:hover {
+    border-color: var(--sk-acc, #ff5fa8);
+    color: var(--text);
+  }
+
+  .sr-file {
+    display: none;
+  }
+
+  .team-mini-card {
+    width: 100%;
+    max-width: 240px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    background: var(--surface-alt);
+  }
+
+  .tm-av {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: var(--sk-pri, #8f8df7);
+    color: #fff;
+    border: 1.5px solid var(--sk-ink, #1d1a4a);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .tm-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    font-size: 13px;
+  }
+
+  .online-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: #10b981;
+    flex-shrink: 0;
   }
 
   @media (max-width: 720px) {

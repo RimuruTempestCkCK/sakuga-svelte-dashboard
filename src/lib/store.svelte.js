@@ -19,6 +19,9 @@ export const PAGE_TO_HASH = {
   register: '#/register',
   'forgot-password': '#/forgot-password',
   'reset-password': '#/reset-password',
+  '403': '#/403',
+  '500': '#/500',
+  maintenance: '#/maintenance',
 };
 
 const HASH_TO_PAGE = Object.fromEntries(
