@@ -1,5 +1,8 @@
 <script>
   import Modal from '../Modal.svelte';
+  import Sparkline from '../charts/Sparkline.svelte';
+  import AreaLineChart from '../charts/AreaLineChart.svelte';
+  import DonutChart from '../charts/DonutChart.svelte';
   import { dashboard, logEvent, showToast, navigate } from '../store.svelte.js';
 
   let progressEl = $state();
@@ -14,6 +17,18 @@
   let quickModalOpen = $state(false);
   let quickNoteTitle = $state('');
   let quickNotePriority = $state('High');
+
+  const WEEKLY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const WEEKLY_SERIES = [
+    { name: 'Frames Rendered', color: 'var(--sk-pri, #8f8df7)', data: [42, 54, 49, 68, 82, 74, 91] },
+    { name: 'Target', color: 'var(--sk-acc, #ff5fa8)', data: [40, 48, 52, 60, 70, 72, 80] },
+  ];
+
+  const SHOT_STATUS = [
+    { label: 'Completed', value: 18, color: 'var(--sk-pri, #8f8df7)' },
+    { label: 'In Progress', value: 9, color: 'var(--sk-acc, #ff5fa8)' },
+    { label: 'In Review', value: 5, color: 'var(--sk-soft, #b8b3ff)' },
+  ];
 
   function submitQuickNote(e) {
     e.preventDefault();
@@ -71,24 +86,27 @@
         <span class="badge accent">12 / 12</span>
       </div>
       <div class="kpi-val sakuga-title">100%</div>
+      <Sparkline data={[65, 72, 80, 88, 94, 100]} color="var(--sk-acc, #ff5fa8)" />
       <p class="kpi-sub">All Sakuga VFX elements loaded</p>
     </div>
 
     <div class="card kpi-card">
       <div class="kpi-top">
-        <span class="kpi-label">Canvas Loop</span>
-        <span class="badge">60 FPS</span>
+        <span class="kpi-label">Weekly Output</span>
+        <span class="badge success">+18%</span>
       </div>
-      <div class="kpi-val sakuga-title">0.4ms</div>
-      <p class="kpi-sub">Shared spring & particle clock</p>
+      <div class="kpi-val sakuga-title">460k</div>
+      <Sparkline data={[42, 54, 49, 68, 82, 91]} color="var(--sk-pri, #8f8df7)" />
+      <p class="kpi-sub">Frames rendered this week</p>
     </div>
 
     <div class="card kpi-card">
       <div class="kpi-top">
         <span class="kpi-label">Render Target</span>
-        <sakuga-tooltip text="Adjusts the live preview slider below." label="Render target info"></sakuga-tooltip>
+        <sakuga-tooltip text="Adjusts with the FX Intensity slider below." label="Render target info"></sakuga-tooltip>
       </div>
       <div class="kpi-val sakuga-title">{volume}%</div>
+      <Sparkline data={[50, 58, 62, 66, 70, volume]} color="var(--sk-pri, #8f8df7)" />
       <p class="kpi-sub">Current FX intensity level</p>
     </div>
 
@@ -98,7 +116,34 @@
         <span class="badge">S-Rank</span>
       </div>
       <div class="kpi-val sakuga-title">{qualityRating} / 5 ★</div>
+      <Sparkline data={[4, 4, 5, 4, 5, qualityRating]} color="var(--sk-acc, #ff5fa8)" />
       <p class="kpi-sub">Key animator rating</p>
+    </div>
+  </section>
+
+  <section class="charts-overview-grid">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2 class="card-title">Weekly Render Trend</h2>
+          <p class="card-desc">Daily frames rendered vs studio target (hover points or toggle legend).</p>
+        </div>
+        <button type="button" class="pill" onclick={() => navigate('analytics')}>Full Analytics →</button>
+      </div>
+      <AreaLineChart labels={WEEKLY_LABELS} series={WEEKLY_SERIES} unit="k" height={195} />
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2 class="card-title">Shot Distribution</h2>
+          <p class="card-desc">Current studio shot breakdown (32 total shots).</p>
+        </div>
+        <button type="button" class="pill" onclick={() => navigate('tables')}>Tables →</button>
+      </div>
+      <div class="donut-center-wrap">
+        <DonutChart items={SHOT_STATUS} centerLabel="Total Shots" />
+      </div>
     </div>
   </section>
 
@@ -106,7 +151,7 @@
     <div class="card pipeline-card">
       <div class="card-head">
         <div>
-          <h2>Render Pipeline</h2>
+          <h2 class="card-title">Render Pipeline</h2>
           <p class="card-desc">Drive &lt;sakuga-progress&gt; with real surges and watch ゴゴゴゴ + ドン! on finish.</p>
         </div>
         <sakuga-tooltip text="Click +25% or Complete to watch the storm cloud and pebbles ride the bar." label="Pipeline help"></sakuga-tooltip>
@@ -133,7 +178,7 @@
     <div class="card quick-card">
       <div class="card-head">
         <div>
-          <h2>Quick Studio Controls</h2>
+          <h2 class="card-title">Quick Studio Controls</h2>
           <p class="card-desc">Interactive anime-spring controls wired to Svelte 5 state.</p>
         </div>
         <button type="button" class="pill" onclick={() => navigate('components')}>View all 12 →</button>
@@ -197,7 +242,7 @@
 
   <section class="card log-card">
     <div class="log-header">
-      <h2>Studio Feed</h2>
+      <h2 class="card-title">Studio Feed</h2>
       <sakuga-tabs label="Feed view" onchange={handleTabChange}>
         <option value="activity" selected>Activity Log</option>
         <option value="architecture">Architecture</option>
@@ -227,10 +272,10 @@
   title="Quick Shot Entry"
   subtitle="Add a new studio cut note directly from Overview."
 >
-  <form class="quick-modal-form" onsubmit={submitQuickNote}>
-    <div class="qm-field">
-      <span class="qm-label">Shot Name</span>
-      <div class="qm-input">
+  <form class="modal-form" onsubmit={submitQuickNote}>
+    <div class="field-group">
+      <span class="field-label">Shot Name</span>
+      <div class="input-full">
         <sakuga-input
           label="Shot Name"
           value={quickNoteTitle}
@@ -240,8 +285,8 @@
       </div>
     </div>
 
-    <div class="qm-field">
-      <span class="qm-label">Priority</span>
+    <div class="field-group">
+      <span class="field-label">Priority</span>
       <sakuga-radio
         label="Priority"
         value={quickNotePriority}
@@ -274,7 +319,7 @@
   }
 
   .kpi-card {
-    gap: 8px;
+    gap: 6px;
   }
 
   .kpi-top {
@@ -285,45 +330,39 @@
   }
 
   .kpi-label {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--mute);
   }
 
   .kpi-val {
-    font-size: 30px;
+    font-size: 28px;
     line-height: 1.1;
     color: var(--text);
   }
 
   .kpi-sub {
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--mute);
+  }
+
+  .charts-overview-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 14px;
+  }
+
+  .donut-center-wrap {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    padding: 6px 0;
   }
 
   .main-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
     gap: 14px;
-  }
-
-  .card-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  .card-head h2 {
-    font-size: 15.5px;
-    font-weight: 700;
-  }
-
-  .card-desc {
-    font-size: 12.5px;
-    color: var(--mute);
-    margin-top: 2px;
   }
 
   .progress-stage {
@@ -365,17 +404,17 @@
   }
 
   .muted-sm {
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--mute);
   }
 
   .slider-box {
     --sk-slider-width: 190px;
-    padding-top: 14px;
+    padding-top: 6px;
   }
 
   .log-card {
-    gap: 16px;
+    gap: 12px;
   }
 
   .log-header {
@@ -386,25 +425,20 @@
     gap: 12px;
   }
 
-  .log-header h2 {
-    font-size: 16px;
-    font-weight: 700;
-  }
-
   .log-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
 
   .log-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 13.5px;
+    font-size: 13px;
     padding: 8px 12px;
     border-radius: 10px;
     background: var(--surface-alt);
@@ -414,46 +448,18 @@
   .arch-info {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    font-size: 13.5px;
+    gap: 8px;
+    font-size: 13px;
     color: var(--text);
     background: var(--surface-alt);
-    padding: 14px 16px;
+    padding: 12px 14px;
     border-radius: 12px;
     border: 1px solid var(--line);
   }
 
-  .arch-info code {
-    padding: 1px 6px;
-    border-radius: 5px;
-    background: var(--chip);
-    font-size: 12.5px;
-  }
-
-  .quick-modal-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .qm-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .qm-label {
-    font-size: 12.5px;
-    font-weight: 700;
-  }
-
-  .qm-input {
-    --sk-input-width: 100%;
-    width: 100%;
-  }
-
-  .qm-input :global(sakuga-input) {
-    display: block;
-    width: 100%;
+  @media (max-width: 960px) {
+    .charts-overview-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
