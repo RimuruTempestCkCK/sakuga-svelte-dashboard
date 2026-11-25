@@ -146,6 +146,17 @@
     <div class="header-actions">
       <button
         type="button"
+        class="pill cmd-trigger"
+        aria-label="Open Command Palette"
+        onclick={() => (dashboard.commandPaletteOpen = true)}
+      >
+        <Icon name="search" size={14} />
+        <span>Cmd</span>
+        <kbd class="cmd-kbd">Ctrl+K</kbd>
+      </button>
+
+      <button
+        type="button"
         class="icon-btn mobile-search-toggle"
         aria-label={mobileSearchOpen ? 'Close search' : 'Open search'}
         aria-expanded={mobileSearchOpen}
@@ -233,6 +244,17 @@
             </div>
             <button type="button" role="menuitem" class="menu-item" onclick={() => goFromMenu('profile')}>My Profile</button>
             <button type="button" role="menuitem" class="menu-item" onclick={() => goFromMenu('settings')}>Theme & FX Settings</button>
+            <button
+              type="button"
+              role="menuitem"
+              class="menu-item"
+              onclick={() => {
+                profileOpen = false;
+                dashboard.shortcutsOpen = true;
+              }}
+            >
+              Keyboard Shortcuts
+            </button>
             <div class="menu-divider"></div>
             <button type="button" role="menuitem" class="menu-item" onclick={() => goFromMenu('login')}>Login Page</button>
             <button type="button" role="menuitem" class="menu-item accent-text" onclick={() => goFromMenu('register')}>Register Page</button>
@@ -590,7 +612,27 @@
     width: 100%;
   }
 
+  .cmd-trigger {
+    height: 36px;
+    padding: 0 10px;
+    font-size: 12.5px;
+    border-radius: 11px;
+  }
+
+  .cmd-kbd {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: var(--chip);
+    border: 1px solid var(--line);
+    color: var(--mute);
+  }
+
   @media (max-width: 1120px) {
+    .cmd-trigger {
+      display: none;
+    }
     .user-meta {
       display: none;
     }

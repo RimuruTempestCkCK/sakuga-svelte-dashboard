@@ -3,6 +3,8 @@
   import SplashLoader from './lib/SplashLoader.svelte';
   import Sidebar from './lib/Sidebar.svelte';
   import Header from './lib/Header.svelte';
+  import CommandPalette from './lib/CommandPalette.svelte';
+  import Modal from './lib/Modal.svelte';
   import OverviewView from './lib/views/OverviewView.svelte';
   import AnalyticsView from './lib/views/AnalyticsView.svelte';
   import TablesView from './lib/views/TablesView.svelte';
@@ -16,13 +18,53 @@
   import ForgotPasswordView from './lib/views/ForgotPasswordView.svelte';
   import ResetPasswordView from './lib/views/ResetPasswordView.svelte';
   import NotFoundView from './lib/views/NotFoundView.svelte';
-  import { dashboard, initDashboard, syncFromHash } from './lib/store.svelte.js';
+  import { dashboard, initDashboard, syncFromHash, setSidebarCollapsed } from './lib/store.svelte.js';
+
+  function isEditableTarget(target) {
+    if (!target) return false;
+    if (target instanceof HTMLElement) {
+      if (target.isContentEditable) return true;
+      const tag = target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'SAKUGA-INPUT') {
+        return true;
+      }
+    }
+    return false;
+  }
 
   onMount(() => {
     initDashboard();
     window.addEventListener('hashchange', syncFromHash);
+
+    function handleGlobalKey(e) {
+      const mod = e.ctrlKey || e.metaKey;
+      const key = e.key.toLowerCase();
+
+      if (mod && key === 'k') {
+        if (isEditableTarget(e.target) && !dashboard.commandPaletteOpen) return;
+        e.preventDefault();
+        dashboard.commandPaletteOpen = !dashboard.commandPaletteOpen;
+        return;
+      }
+
+      if (isEditableTarget(e.target)) return;
+
+      if (mod && key === 'b') {
+        e.preventDefault();
+        setSidebarCollapsed(!dashboard.sidebarCollapsed);
+      } else if (e.key === '?' && e.shiftKey) {
+        e.preventDefault();
+        dashboard.shortcutsOpen = !dashboard.shortcutsOpen;
+      } else if (e.key === 'Escape') {
+        if (dashboard.commandPaletteOpen) dashboard.commandPaletteOpen = false;
+        else if (dashboard.shortcutsOpen) dashboard.shortcutsOpen = false;
+      }
+    }
+
+    window.addEventListener('keydown', handleGlobalKey);
     return () => {
       window.removeEventListener('hashchange', syncFromHash);
+      window.removeEventListener('keydown', handleGlobalKey);
     };
   });
 
@@ -83,6 +125,21 @@
   <sakuga-toast bind:this={dashboard.toastEl} duration="2.6"></sakuga-toast>
 </div>
 
+<CommandPalette bind:open={dashboard.commandPaletteOpen} />
+
+<Modal
+  bind:open={dashboard.shortcutsOpen}
+  title="Keyboard Shortcuts"
+  subtitle="Global shortcuts available when not typing in an input field."
+>
+  <div class="shortcuts-list">
+    <div class="sc-row"><span>Open Command Palette</span><kbd class="kbd-pill">Ctrl / Cmd + K</kbd></div>
+    <div class="sc-row"><span>Toggle Sidebar Collapse</span><kbd class="kbd-pill">Ctrl / Cmd + B</kbd></div>
+    <div class="sc-row"><span>Show Keyboard Shortcuts</span><kbd class="kbd-pill">Shift + ?</kbd></div>
+    <div class="sc-row"><span>Close Modal / Palette / Dropdown</span><kbd class="kbd-pill">Escape</kbd></div>
+  </div>
+</Modal>
+
 <style>
   .shell {
     min-height: 100vh;
@@ -120,6 +177,34 @@
 
   .global-toast :global(sakuga-toast) {
     pointer-events: auto;
+  }
+
+  .shortcuts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--surface-alt);
+    border: 1px solid var(--line);
+    font-size: 13.5px;
+  }
+
+  .kbd-pill {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 7px;
+    background: var(--chip);
+    border: 1px solid var(--line);
   }
 
   @media (max-width: 900px) {

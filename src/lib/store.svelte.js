@@ -159,6 +159,8 @@ export const dashboard = $state({
   page: 'overview',
   sidebarCollapsed: false,
   mobileNavOpen: false,
+  commandPaletteOpen: false,
+  shortcutsOpen: false,
   searchQuery: '',
   fxEnabled: true,
   darkMode: false,
