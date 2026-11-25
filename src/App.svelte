@@ -1,4 +1,5 @@
 <script>
+  import { onMount } from 'svelte';
   import SplashLoader from './lib/SplashLoader.svelte';
   import Sidebar from './lib/Sidebar.svelte';
   import Header from './lib/Header.svelte';
@@ -12,18 +13,35 @@
   import SettingsView from './lib/views/SettingsView.svelte';
   import LoginView from './lib/views/LoginView.svelte';
   import RegisterView from './lib/views/RegisterView.svelte';
-  import { dashboard } from './lib/store.svelte.js';
+  import NotFoundView from './lib/views/NotFoundView.svelte';
+  import { dashboard, initDashboard, syncFromHash } from './lib/store.svelte.js';
 
-  let isAuthPage = $derived(dashboard.page === 'login' || dashboard.page === 'register');
+  onMount(() => {
+    initDashboard();
+    window.addEventListener('hashchange', syncFromHash);
+    return () => {
+      window.removeEventListener('hashchange', syncFromHash);
+    };
+  });
+
+  let isStandalonePage = $derived(
+    dashboard.page === 'login' ||
+      dashboard.page === 'register' ||
+      dashboard.page === 'forgot-password' ||
+      dashboard.page === 'reset-password' ||
+      dashboard.page === 'not-found'
+  );
 </script>
 
 <SplashLoader />
 
-{#if isAuthPage}
+{#if isStandalonePage}
   {#if dashboard.page === 'login'}
     <LoginView />
-  {:else}
+  {:else if dashboard.page === 'register'}
     <RegisterView />
+  {:else}
+    <NotFoundView />
   {/if}
 {:else}
   <div class="shell" class:collapsed={dashboard.sidebarCollapsed}>

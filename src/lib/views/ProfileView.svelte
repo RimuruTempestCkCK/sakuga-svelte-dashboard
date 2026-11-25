@@ -1,5 +1,5 @@
 <script>
-  import { dashboard, showToast, logEvent, navigate } from '../store.svelte.js';
+  import { dashboard, showToast, logEvent, navigate, updateUser } from '../store.svelte.js';
 
   let saveBtn = $state();
   let name = $state(dashboard.user.name);
@@ -9,7 +9,7 @@
 
   function handleSaveProfile(e) {
     e.preventDefault();
-    dashboard.user = {
+    updateUser({
       name: name || 'Animator',
       email: email || 'user@sakuga.studio',
       role,
@@ -19,7 +19,7 @@
         .join('')
         .slice(0, 2)
         .toUpperCase(),
-    };
+    });
     logEvent(`Updated profile for ${dashboard.user.name}`);
     showToast('Profile updated!');
     setTimeout(() => saveBtn?.done?.(), 650);

@@ -11,6 +11,59 @@ export const NAV_ITEMS = [
   { id: 'register', label: 'Register Page', group: 'Auth Templates', icon: 'userplus', hint: 'Full-screen sign up template' },
 ];
 
+export const PAGE_TO_HASH = {
+  overview: '#/overview',
+  analytics: '#/analytics',
+  tables: '#/tables',
+  tasks: '#/tasks',
+  components: '#/components',
+  studio: '#/studio-form',
+  profile: '#/profile',
+  settings: '#/settings',
+  login: '#/login',
+  register: '#/register',
+  'forgot-password': '#/forgot-password',
+  'reset-password': '#/reset-password',
+};
+
+const HASH_TO_PAGE = Object.fromEntries(
+  Object.entries(PAGE_TO_HASH).map(([page, hash]) => [hash.toLowerCase(), page])
+);
+
+const STORAGE_KEY = 'sakuga_dashboard_prefs_v1';
+
+function readPrefs() {
+  try {
+    if (typeof localStorage === 'undefined') return null;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writePrefs() {
+  try {
+    if (typeof localStorage === 'undefined') return;
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        theme: dashboard.theme,
+        lastLightTheme: dashboard.lastLightTheme,
+        sidebarCollapsed: dashboard.sidebarCollapsed,
+        user: {
+          name: dashboard.user.name,
+          role: dashboard.user.role,
+          email: dashboard.user.email,
+          initials: dashboard.user.initials,
+        },
+      })
+    );
+  } catch {
+    // Ignore storage quota or privacy mode errors
+  }
+}
+
 export const THEME_PRESETS = {
   paper: {
     name: 'Classic Sakuga Paper',
@@ -129,9 +182,71 @@ export const dashboard = $state({
   ],
 });
 
+export function resolveHash(hashStr) {
+  const clean = (hashStr || '').split('?')[0].toLowerCase();
+  if (!clean || clean === '#' || clean === '#/') return 'overview';
+  return HASH_TO_PAGE[clean] || 'not-found';
+}
+
+export function syncFromHash() {
+  if (typeof window === 'undefined') return;
+  dashboard.page = resolveHash(window.location.hash);
+  dashboard.mobileNavOpen = false;
+}
+
+export function initDashboard() {
+  const saved = readPrefs();
+  if (saved) {
+    if (saved.lastLightTheme && THEME_PRESETS[saved.lastLightTheme] && !THEME_PRESETS[saved.lastLightTheme].dark) {
+      dashboard.lastLightTheme = saved.lastLightTheme;
+    }
+    if (typeof saved.sidebarCollapsed === 'boolean') {
+      dashboard.sidebarCollapsed = saved.sidebarCollapsed;
+    }
+    if (saved.user && typeof saved.user === 'object') {
+      dashboard.user = {
+        name: saved.user.name || dashboard.user.name,
+        role: saved.user.role || dashboard.user.role,
+        email: saved.user.email || dashboard.user.email,
+        initials: saved.user.initials || dashboard.user.initials,
+      };
+    }
+    if (saved.theme && THEME_PRESETS[saved.theme]) {
+      applyTheme(saved.theme, { silent: true });
+    } else {
+      applyTheme('paper', { silent: true });
+    }
+  } else {
+    applyTheme('paper', { silent: true });
+  }
+
+  if (typeof window !== 'undefined') {
+    if (!window.location.hash) {
+      window.history.replaceState(null, '', PAGE_TO_HASH.overview);
+    }
+    syncFromHash();
+  }
+}
+
 export function navigate(pageId) {
   dashboard.page = pageId;
   dashboard.mobileNavOpen = false;
+  if (typeof window !== 'undefined' && PAGE_TO_HASH[pageId]) {
+    const targetHash = PAGE_TO_HASH[pageId];
+    if (window.location.hash !== targetHash) {
+      window.location.hash = targetHash;
+    }
+  }
+}
+
+export function setSidebarCollapsed(collapsed) {
+  dashboard.sidebarCollapsed = Boolean(collapsed);
+  writePrefs();
+}
+
+export function updateUser(nextUser) {
+  dashboard.user = { ...dashboard.user, ...nextUser };
+  writePrefs();
 }
 
 export function showToast(message) {
@@ -150,7 +265,7 @@ export function logEvent(text) {
   ];
 }
 
-export function applyTheme(presetKey) {
+export function applyTheme(presetKey, { silent = false } = {}) {
   const preset = THEME_PRESETS[presetKey];
   if (!preset) return;
   dashboard.theme = presetKey;
@@ -158,12 +273,17 @@ export function applyTheme(presetKey) {
   if (!preset.dark) {
     dashboard.lastLightTheme = presetKey;
   }
-  const root = document.documentElement;
-  root.dataset.theme = preset.dark ? 'dark' : 'light';
-  for (const [k, v] of Object.entries(preset.vars)) {
-    root.style.setProperty(k, v);
+  if (typeof document !== 'undefined') {
+    const root = document.documentElement;
+    root.dataset.theme = preset.dark ? 'dark' : 'light';
+    for (const [k, v] of Object.entries(preset.vars)) {
+      root.style.setProperty(k, v);
+    }
   }
-  logEvent(`Theme switched to ${preset.name}`);
+  writePrefs();
+  if (!silent) {
+    logEvent(`Theme switched to ${preset.name}`);
+  }
 }
 
 export function toggleDarkMode() {

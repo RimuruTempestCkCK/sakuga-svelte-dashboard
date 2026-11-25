@@ -7,6 +7,7 @@
     showToast,
     toggleDarkMode,
     markAllNotificationsRead,
+    setSidebarCollapsed,
   } from './store.svelte.js';
 
   let notifOpen = $state(false);
@@ -51,7 +52,7 @@
       type="button"
       class="icon-btn desktop-only"
       aria-label={dashboard.sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      onclick={() => (dashboard.sidebarCollapsed = !dashboard.sidebarCollapsed)}
+      onclick={() => setSidebarCollapsed(!dashboard.sidebarCollapsed)}
     >
       <Icon name={dashboard.sidebarCollapsed ? 'chevron-right' : 'chevron-left'} size={18} />
     </button>

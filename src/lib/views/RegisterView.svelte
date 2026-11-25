@@ -1,6 +1,6 @@
 <script>
   import Icon from '../Icon.svelte';
-  import { dashboard, navigate, showToast, toggleDarkMode, logEvent } from '../store.svelte.js';
+  import { dashboard, navigate, showToast, toggleDarkMode, logEvent, updateUser } from '../store.svelte.js';
 
   let submitBtn = $state();
   let fullName = $state('Yui Sato');
@@ -10,7 +10,7 @@
 
   function handleRegister(e) {
     e.preventDefault();
-    dashboard.user = {
+    updateUser({
       name: fullName || 'New Animator',
       role: role === 'director' ? 'Art Director' : 'Key Animator',
       email: email || 'user@sakuga.studio',
@@ -20,7 +20,7 @@
         .join('')
         .slice(0, 2)
         .toUpperCase(),
-    };
+    });
     logEvent(`Registered account for ${dashboard.user.name}`);
     showToast('ズザッ! Account created!');
     setTimeout(() => {
