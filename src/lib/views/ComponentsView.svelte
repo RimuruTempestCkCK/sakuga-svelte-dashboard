@@ -1,4 +1,5 @@
 <script>
+  import Icon from '../Icon.svelte';
   import { dashboard, logEvent } from '../store.svelte.js';
 
   let primaryBtn = $state();
@@ -55,6 +56,17 @@
   </div>
 
   <div class="grid">
+    {#if visibleCards.length === 0}
+      <div class="card empty-span">
+        <div class="empty-state">
+          <div class="empty-icon"><Icon name="search" size={20} /></div>
+          <div class="empty-title">Tidak ada data yang ditemukan</div>
+          <p class="empty-desc">Tidak ada kontrol Sakuga yang cocok dengan kata kunci "{dashboard.searchQuery}".</p>
+          <button type="button" class="pill" onclick={() => (dashboard.searchQuery = '')}>Reset Filter</button>
+        </div>
+      </div>
+    {/if}
+
     {#each visibleCards as item (item.id)}
       <section class="card gallery-card" class:wide={item.wide}>
         <h2>{item.name} <span>{item.tag}</span></h2>
@@ -175,6 +187,10 @@
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
     gap: 14px;
     grid-auto-flow: dense;
+  }
+
+  .empty-span {
+    grid-column: 1 / -1;
   }
 
   .gallery-card {

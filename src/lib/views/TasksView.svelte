@@ -18,6 +18,11 @@
   let shotFrames = $state('36f');
   let shotProgress = $state(20);
   let shotDone = $state(false);
+  let shotError = $state('');
+
+  // Delete Confirmation Modal state
+  let deleteModalOpen = $state(false);
+  let deleteShot = $state(null);
 
   let filteredTasks = $derived.by(() => {
     const q = dashboard.searchQuery.trim().toLowerCase();
@@ -28,6 +33,11 @@
       return true;
     });
   });
+
+  function resetFilters() {
+    filter = 'all';
+    dashboard.searchQuery = '';
+  }
 
   function toggleTask(id, checked) {
     tasks = tasks.map((t) =>
@@ -52,6 +62,7 @@
     shotFrames = '36f';
     shotProgress = 15;
     shotDone = false;
+    shotError = '';
     shotModalOpen = true;
   }
 
@@ -61,12 +72,17 @@
     shotFrames = t.frames;
     shotProgress = Math.round(t.progress * 100);
     shotDone = t.done;
+    shotError = '';
     shotModalOpen = true;
   }
 
   function saveShot(e) {
     e.preventDefault();
-    const cleanTitle = shotTitle.trim() || 'New Sakuga Shot';
+    if (!shotTitle.trim()) {
+      shotError = 'Shot title wajib diisi.';
+      return;
+    }
+    const cleanTitle = shotTitle.trim();
     const cleanFrames = shotFrames.trim() || '24f';
     const prog = shotDone ? 1 : Math.min(1, Math.max(0, Number(shotProgress) / 100));
 
@@ -89,6 +105,20 @@
     }
     shotModalOpen = false;
   }
+
+  function askDeleteShot(t) {
+    deleteShot = t;
+    deleteModalOpen = true;
+  }
+
+  function confirmDeleteShot() {
+    if (!deleteShot) return;
+    tasks = tasks.filter((t) => t.id !== deleteShot.id);
+    logEvent(`Deleted shot: ${deleteShot.title}`);
+    showToast('Shot removed from queue');
+    deleteModalOpen = false;
+    deleteShot = null;
+  }
 </script>
 
 <div class="page-stack">
@@ -96,7 +126,7 @@
     <div class="toolbar-row">
       <div>
         <h2 class="card-title">Animation Render Queue</h2>
-        <p class="card-desc">Add or edit shots in a modal pop-up, filter with tabs, or boost render progress.</p>
+        <p class="card-desc">Add, edit, or delete shots in a modal pop-up, filter with tabs, or boost render progress.</p>
       </div>
 
       <div class="toolbar-actions">
@@ -104,9 +134,9 @@
           label="Filter queue"
           onchange={(e) => (filter = e.detail?.value || 'all')}
         >
-          <option value="all" selected>All ({tasks.length})</option>
-          <option value="rendering">Rendering</option>
-          <option value="completed">Completed</option>
+          <option value="all" selected={filter === 'all'}>All ({tasks.length})</option>
+          <option value="rendering" selected={filter === 'rendering'}>Rendering</option>
+          <option value="completed" selected={filter === 'completed'}>Completed</option>
         </sakuga-tabs>
 
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
@@ -115,43 +145,62 @@
     </div>
   </div>
 
-  <div class="task-list">
-    {#each filteredTasks as task (task.id)}
-      <div class="card task-card">
-        <div class="task-main">
-          <sakuga-checkbox
-            checked={task.done}
-            onchange={(e) => toggleTask(task.id, e.target.checked)}
-          >
-            {task.title}
-          </sakuga-checkbox>
-
-          <div class="task-meta">
-            <span class="badge mono">{task.frames}</span>
-            <span class="badge" class:accent={!task.done} class:success={task.done}>
-              {task.done ? 'Done' : `${Math.round(task.progress * 100)}%`}
-            </span>
-            <button type="button" class="pill" onclick={() => openEditShot(task)}>
-              <Icon name="edit" size={14} />
-              <span>Edit</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="task-footer">
-          <div class="bar-track" aria-hidden="true">
-            <div class="bar-fill" style="width: {task.progress * 100}%"></div>
-          </div>
-          {#if !task.done}
-            <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-            <sakuga-button variant="secondary" onclick={() => boostTask(task.id)}>
-              Boost +35%
-            </sakuga-button>
-          {/if}
-        </div>
+  {#if filteredTasks.length === 0}
+    <div class="card">
+      <div class="empty-state">
+        <div class="empty-icon"><Icon name="search" size={20} /></div>
+        <div class="empty-title">Tidak ada data yang ditemukan</div>
+        <p class="empty-desc">Tidak ada shot di antrean yang cocok dengan filter atau pencarian Anda.</p>
+        <button type="button" class="pill" onclick={resetFilters}>Reset Filter</button>
       </div>
-    {/each}
-  </div>
+    </div>
+  {:else}
+    <div class="task-list">
+      {#each filteredTasks as task (task.id)}
+        <div class="card task-card">
+          <div class="task-main">
+            <sakuga-checkbox
+              checked={task.done}
+              onchange={(e) => toggleTask(task.id, e.target.checked)}
+            >
+              {task.title}
+            </sakuga-checkbox>
+
+            <div class="task-meta">
+              <span class="badge mono">{task.frames}</span>
+              <span class="badge" class:accent={!task.done} class:success={task.done}>
+                {task.done ? 'Done' : `${Math.round(task.progress * 100)}%`}
+              </span>
+              <button type="button" class="pill" onclick={() => openEditShot(task)}>
+                <Icon name="edit" size={14} />
+                <span>Edit</span>
+              </button>
+              <button
+                type="button"
+                class="pill danger"
+                aria-label={`Delete ${task.title}`}
+                onclick={() => askDeleteShot(task)}
+              >
+                <Icon name="trash" size={14} />
+              </button>
+            </div>
+          </div>
+
+          <div class="task-footer">
+            <div class="bar-track" aria-hidden="true">
+              <div class="bar-fill" style="width: {task.progress * 100}%"></div>
+            </div>
+            {#if !task.done}
+              <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+              <sakuga-button variant="secondary" onclick={() => boostTask(task.id)}>
+                Boost +35%
+              </sakuga-button>
+            {/if}
+          </div>
+        </div>
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <Modal
@@ -161,15 +210,21 @@
 >
   <form class="modal-form" onsubmit={saveShot}>
     <div class="field-group">
-      <span class="field-label">Shot Title</span>
+      <span class="field-label">Shot Title *</span>
       <div class="input-full">
         <sakuga-input
           label="Shot Title"
           value={shotTitle}
           placeholder="e.g. Cut 24 — Energy Charge"
-          oninput={(e) => (shotTitle = e.target.value)}
+          oninput={(e) => {
+            shotTitle = e.target.value;
+            if (shotError) shotError = '';
+          }}
         ></sakuga-input>
       </div>
+      {#if shotError}
+        <span class="field-error">{shotError}</span>
+      {/if}
     </div>
 
     <div class="field-group">
@@ -207,30 +262,44 @@
   </form>
 </Modal>
 
+<Modal
+  bind:open={deleteModalOpen}
+  title="Confirm Delete Shot"
+  subtitle="This action removes the shot from the render queue."
+>
+  <p class="confirm-text">
+    Apakah Anda yakin ingin menghapus <strong>{deleteShot?.title}</strong>?
+  </p>
+  <div class="card-footer">
+    <button type="button" class="pill danger-solid" onclick={confirmDeleteShot}>Delete</button>
+    <button type="button" class="pill" onclick={() => (deleteModalOpen = false)}>Cancel</button>
+  </div>
+</Modal>
+
 <style>
   .toolbar-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px;
   }
 
   .toolbar-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
 
   .task-list {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
   }
 
   .task-card {
-    gap: 14px;
+    gap: 12px;
   }
 
   .task-main {
@@ -238,7 +307,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
   }
 
   .task-meta {
@@ -252,7 +321,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
   }
 
   .bar-track {
@@ -271,36 +340,13 @@
     transition: width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .modal-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .field-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .field-label {
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  .input-full {
-    --sk-input-width: 100%;
-    width: 100%;
-  }
-
-  .input-full :global(sakuga-input) {
-    display: block;
-    width: 100%;
-  }
-
   .slider-field {
     --sk-slider-width: 100%;
     padding-top: 8px;
+  }
+
+  .confirm-text {
+    font-size: 14px;
+    line-height: 1.5;
   }
 </style>
