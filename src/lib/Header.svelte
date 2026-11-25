@@ -17,26 +17,19 @@
 
   let notifOpen = $state(false);
   let profileOpen = $state(false);
-  let mobileSearchOpen = $state(false);
 
   let notifAnchor = $state();
   let profileAnchor = $state();
   let notifBtn = $state();
   let profileBtn = $state();
-  let mobileSearchBar = $state();
 
   let currentNav = $derived(NAV_ITEMS.find((n) => n.id === dashboard.page) || NAV_ITEMS[0]);
   let unreadCount = $derived(dashboard.notifications.filter((n) => n.unread).length);
-
-  function handleSearchInput(e) {
-    dashboard.searchQuery = e.target.value ?? '';
-  }
 
   function toggleNotif() {
     notifOpen = !notifOpen;
     if (notifOpen) {
       profileOpen = false;
-      mobileSearchOpen = false;
     }
   }
 
@@ -44,15 +37,6 @@
     profileOpen = !profileOpen;
     if (profileOpen) {
       notifOpen = false;
-      mobileSearchOpen = false;
-    }
-  }
-
-  function toggleMobileSearch() {
-    mobileSearchOpen = !mobileSearchOpen;
-    if (mobileSearchOpen) {
-      notifOpen = false;
-      profileOpen = false;
     }
   }
 
@@ -71,14 +55,6 @@
       if (profileOpen && profileAnchor && !profileAnchor.contains(target)) {
         profileOpen = false;
       }
-      if (
-        mobileSearchOpen &&
-        mobileSearchBar &&
-        !mobileSearchBar.contains(target) &&
-        !(target instanceof Element && target.closest('.mobile-search-toggle'))
-      ) {
-        mobileSearchOpen = false;
-      }
     }
 
     function handleKeyDown(e) {
@@ -90,9 +66,6 @@
       if (profileOpen) {
         profileOpen = false;
         profileBtn?.focus();
-      }
-      if (mobileSearchOpen) {
-        mobileSearchOpen = false;
       }
     }
 
@@ -138,15 +111,6 @@
   </div>
 
   <div class="header-right">
-    <div class="header-search">
-      <sakuga-input
-        label="Search"
-        placeholder="Search..."
-        value={dashboard.searchQuery}
-        oninput={handleSearchInput}
-      ></sakuga-input>
-    </div>
-
     <div class="header-actions">
       <button
         type="button"
@@ -157,16 +121,6 @@
         <Icon name="search" size={14} />
         <span>Cmd</span>
         <kbd class="cmd-kbd">Ctrl+K</kbd>
-      </button>
-
-      <button
-        type="button"
-        class="icon-btn mobile-search-toggle"
-        aria-label={mobileSearchOpen ? 'Close search' : 'Open search'}
-        aria-expanded={mobileSearchOpen}
-        onclick={toggleMobileSearch}
-      >
-        <Icon name={mobileSearchOpen ? 'x' : 'search'} size={18} />
       </button>
 
       <button
@@ -304,25 +258,6 @@
   </div>
 </header>
 
-{#if mobileSearchOpen}
-  <div class="mobile-search-bar" bind:this={mobileSearchBar} role="search" aria-label="Mobile Search">
-    <div class="mobile-search-input">
-      <sakuga-input
-        label="Search controls or tables"
-        placeholder="Search controls, tables..."
-        value={dashboard.searchQuery}
-        oninput={handleSearchInput}
-      ></sakuga-input>
-    </div>
-    {#if dashboard.searchQuery}
-      <button type="button" class="pill" onclick={() => (dashboard.searchQuery = '')}>Clear</button>
-    {/if}
-    <button type="button" class="icon-btn" aria-label="Close search" onclick={() => (mobileSearchOpen = false)}>
-      <Icon name="x" size={17} />
-    </button>
-  </div>
-{/if}
-
 <style>
   .header {
     position: sticky;
@@ -375,8 +310,7 @@
     box-shadow: 2px 2px 0 var(--sk-soft, #b8b3ff);
   }
 
-  .mobile-only,
-  .mobile-search-toggle {
+  .mobile-only {
     display: none;
   }
 
@@ -421,12 +355,6 @@
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
-  }
-
-  .header-search {
-    --sk-input-width: 180px;
-    display: flex;
-    align-items: center;
   }
 
   .header-actions {
@@ -704,30 +632,6 @@
     margin: 2px 0;
   }
 
-  .mobile-search-bar {
-    position: sticky;
-    top: var(--header-h);
-    z-index: 34;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    background: var(--surface);
-    border-bottom: 1.5px solid var(--line);
-    box-shadow: 0 4px 12px rgba(15, 14, 30, 0.08);
-  }
-
-  .mobile-search-input {
-    flex: 1;
-    min-width: 0;
-    --sk-input-width: 100%;
-  }
-
-  .mobile-search-input :global(sakuga-input) {
-    display: block;
-    width: 100%;
-  }
-
   .cmd-trigger {
     height: 36px;
     padding: 0 10px;
@@ -757,10 +661,6 @@
       padding: 0 8px 0 4px;
       gap: 6px;
     }
-
-    .header-search {
-      --sk-input-width: 150px;
-    }
   }
 
   @media (max-width: 900px) {
@@ -768,16 +668,11 @@
       padding: 0 14px;
     }
 
-    .mobile-only,
-    .mobile-search-toggle {
+    .mobile-only {
       display: grid;
     }
 
     .desktop-only {
-      display: none;
-    }
-
-    .header-search {
       display: none;
     }
   }
