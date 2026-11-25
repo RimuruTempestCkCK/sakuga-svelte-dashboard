@@ -1,4 +1,5 @@
 <script>
+  import { onMount } from 'svelte';
   import Icon from './Icon.svelte';
   import {
     NAV_ITEMS,
@@ -12,6 +13,13 @@
 
   let notifOpen = $state(false);
   let profileOpen = $state(false);
+  let mobileSearchOpen = $state(false);
+
+  let notifAnchor = $state();
+  let profileAnchor = $state();
+  let notifBtn = $state();
+  let profileBtn = $state();
+  let mobileSearchBar = $state();
 
   let currentNav = $derived(NAV_ITEMS.find((n) => n.id === dashboard.page) || NAV_ITEMS[0]);
   let unreadCount = $derived(dashboard.notifications.filter((n) => n.unread).length);
@@ -22,12 +30,26 @@
 
   function toggleNotif() {
     notifOpen = !notifOpen;
-    if (notifOpen) profileOpen = false;
+    if (notifOpen) {
+      profileOpen = false;
+      mobileSearchOpen = false;
+    }
   }
 
   function toggleProfile() {
     profileOpen = !profileOpen;
-    if (profileOpen) notifOpen = false;
+    if (profileOpen) {
+      notifOpen = false;
+      mobileSearchOpen = false;
+    }
+  }
+
+  function toggleMobileSearch() {
+    mobileSearchOpen = !mobileSearchOpen;
+    if (mobileSearchOpen) {
+      notifOpen = false;
+      profileOpen = false;
+    }
   }
 
   function goFromMenu(pageId) {
@@ -35,6 +57,48 @@
     notifOpen = false;
     navigate(pageId);
   }
+
+  onMount(() => {
+    function handlePointerDown(e) {
+      const target = e.target;
+      if (notifOpen && notifAnchor && !notifAnchor.contains(target)) {
+        notifOpen = false;
+      }
+      if (profileOpen && profileAnchor && !profileAnchor.contains(target)) {
+        profileOpen = false;
+      }
+      if (
+        mobileSearchOpen &&
+        mobileSearchBar &&
+        !mobileSearchBar.contains(target) &&
+        !(target instanceof Element && target.closest('.mobile-search-toggle'))
+      ) {
+        mobileSearchOpen = false;
+      }
+    }
+
+    function handleKeyDown(e) {
+      if (e.key !== 'Escape') return;
+      if (notifOpen) {
+        notifOpen = false;
+        notifBtn?.focus();
+      }
+      if (profileOpen) {
+        profileOpen = false;
+        profileBtn?.focus();
+      }
+      if (mobileSearchOpen) {
+        mobileSearchOpen = false;
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  });
 </script>
 
 <header class="header">
@@ -83,6 +147,16 @@
     <div class="header-actions">
       <button
         type="button"
+        class="icon-btn mobile-search-toggle"
+        aria-label={mobileSearchOpen ? 'Close search' : 'Open search'}
+        aria-expanded={mobileSearchOpen}
+        onclick={toggleMobileSearch}
+      >
+        <Icon name={mobileSearchOpen ? 'x' : 'search'} size={18} />
+      </button>
+
+      <button
+        type="button"
         class="icon-btn theme-btn"
         aria-label={dashboard.darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
         title={dashboard.darkMode ? 'Light Mode' : 'Dark Mode'}
@@ -91,11 +165,13 @@
         <Icon name={dashboard.darkMode ? 'sun' : 'moon'} size={18} />
       </button>
 
-      <div class="menu-anchor">
+      <div class="menu-anchor" bind:this={notifAnchor}>
         <button
+          bind:this={notifBtn}
           type="button"
           class="icon-btn"
           aria-label="Notifications"
+          aria-haspopup="dialog"
           aria-expanded={notifOpen}
           onclick={toggleNotif}
         >
@@ -133,10 +209,12 @@
         {/if}
       </div>
 
-      <div class="menu-anchor">
+      <div class="menu-anchor" bind:this={profileAnchor}>
         <button
+          bind:this={profileBtn}
           type="button"
           class="profile-pill"
+          aria-haspopup="menu"
           aria-expanded={profileOpen}
           onclick={toggleProfile}
         >
@@ -154,17 +232,36 @@
               <strong>{dashboard.user.name}</strong>
               <span>{dashboard.user.email}</span>
             </div>
-            <button type="button" class="menu-item" onclick={() => goFromMenu('profile')}>My Profile</button>
-            <button type="button" class="menu-item" onclick={() => goFromMenu('settings')}>Theme & FX Settings</button>
+            <button type="button" role="menuitem" class="menu-item" onclick={() => goFromMenu('profile')}>My Profile</button>
+            <button type="button" role="menuitem" class="menu-item" onclick={() => goFromMenu('settings')}>Theme & FX Settings</button>
             <div class="menu-divider"></div>
-            <button type="button" class="menu-item" onclick={() => goFromMenu('login')}>Login Page</button>
-            <button type="button" class="menu-item accent-text" onclick={() => goFromMenu('register')}>Register Page</button>
+            <button type="button" role="menuitem" class="menu-item" onclick={() => goFromMenu('login')}>Login Page</button>
+            <button type="button" role="menuitem" class="menu-item accent-text" onclick={() => goFromMenu('register')}>Register Page</button>
           </div>
         {/if}
       </div>
     </div>
   </div>
 </header>
+
+{#if mobileSearchOpen}
+  <div class="mobile-search-bar" bind:this={mobileSearchBar} role="search" aria-label="Mobile Search">
+    <div class="mobile-search-input">
+      <sakuga-input
+        label="Search controls or tables"
+        placeholder="Search controls, tables..."
+        value={dashboard.searchQuery}
+        oninput={handleSearchInput}
+      ></sakuga-input>
+    </div>
+    {#if dashboard.searchQuery}
+      <button type="button" class="pill" onclick={() => (dashboard.searchQuery = '')}>Clear</button>
+    {/if}
+    <button type="button" class="icon-btn" aria-label="Close search" onclick={() => (mobileSearchOpen = false)}>
+      <Icon name="x" size={17} />
+    </button>
+  </div>
+{/if}
 
 <style>
   .header {
@@ -218,7 +315,8 @@
     box-shadow: 2px 2px 0 var(--sk-soft, #b8b3ff);
   }
 
-  .mobile-only {
+  .mobile-only,
+  .mobile-search-toggle {
     display: none;
   }
 
@@ -366,7 +464,7 @@
     position: absolute;
     right: 0;
     top: calc(100% + 10px);
-    width: 260px;
+    width: min(260px, calc(100vw - 24px));
     background: var(--surface);
     border: 1.5px solid var(--line);
     border-radius: 16px;
@@ -480,6 +578,30 @@
     margin: 2px 0;
   }
 
+  .mobile-search-bar {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 34;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--line);
+    box-shadow: 0 4px 12px rgba(15, 14, 30, 0.08);
+  }
+
+  .mobile-search-input {
+    flex: 1;
+    min-width: 0;
+    --sk-input-width: 100%;
+  }
+
+  .mobile-search-input :global(sakuga-input) {
+    display: block;
+    width: 100%;
+  }
+
   @media (max-width: 1320px) {
     .hint-pill {
       display: none;
@@ -503,10 +625,11 @@
 
   @media (max-width: 900px) {
     .header {
-      padding: 0 16px;
+      padding: 0 14px;
     }
 
-    .mobile-only {
+    .mobile-only,
+    .mobile-search-toggle {
       display: grid;
     }
 
