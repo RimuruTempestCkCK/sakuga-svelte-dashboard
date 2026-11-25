@@ -1,15 +1,6 @@
-export const NAV_ITEMS = [
-  { id: 'overview', label: 'Overview', group: 'Main', icon: 'grid' },
-  { id: 'analytics', label: 'Analytics', group: 'Main', icon: 'chart' },
-  { id: 'tables', label: 'Data Tables', group: 'Data & Pages', icon: 'table' },
-  { id: 'tasks', label: 'Render Queue', group: 'Data & Pages', icon: 'layers' },
-  { id: 'components', label: 'All 12 Controls', group: 'Data & Pages', icon: 'sparkles' },
-  { id: 'studio', label: 'Studio Form', group: 'Data & Pages', icon: 'sliders' },
-  { id: 'profile', label: 'Profile', group: 'Account', icon: 'user' },
-  { id: 'settings', label: 'Theme & FX', group: 'Account', icon: 'palette' },
-  { id: 'login', label: 'Login Page', group: 'Auth Templates', icon: 'lock' },
-  { id: 'register', label: 'Register Page', group: 'Auth Templates', icon: 'userplus' },
-];
+import { APP_CONFIG } from './app.config.js';
+
+export const NAV_ITEMS = APP_CONFIG.navItems;
 
 export const PAGE_TO_HASH = {
   overview: '#/overview',
@@ -30,7 +21,7 @@ const HASH_TO_PAGE = Object.fromEntries(
   Object.entries(PAGE_TO_HASH).map(([page, hash]) => [hash.toLowerCase(), page])
 );
 
-const STORAGE_KEY = 'sakuga_dashboard_prefs_v1';
+const STORAGE_KEY = APP_CONFIG.storageKey;
 
 function readPrefs() {
   try {
@@ -175,12 +166,7 @@ export const dashboard = $state({
   density: 'comfortable',
   sidebarStyle: 'default',
   toastEl: null,
-  user: {
-    name: 'Akira Takahashi',
-    role: 'Lead Animator',
-    email: 'akira@sakuga.studio',
-    initials: 'AT',
-  },
+  user: { ...APP_CONFIG.defaultUser },
   toasts: [],
   notifications: [
     { id: 1, title: 'Shot #042 Render Complete', time: '2m ago', unread: true, type: 'success' },

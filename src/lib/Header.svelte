@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import Icon from './Icon.svelte';
+  import { APP_CONFIG } from './app.config.js';
   import {
     NAV_ITEMS,
     dashboard,
@@ -126,7 +127,7 @@
 
     <div class="title-group">
       <div class="breadcrumb">
-        <span>Studio</span>
+        <span>{APP_CONFIG.breadcrumbRoot}</span>
         <span aria-hidden="true">/</span>
         <span>{currentNav.group}</span>
       </div>

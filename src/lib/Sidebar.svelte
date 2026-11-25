@@ -1,8 +1,9 @@
 <script>
   import Icon from './Icon.svelte';
+  import { APP_CONFIG } from './app.config.js';
   import { NAV_ITEMS, dashboard, navigate } from './store.svelte.js';
 
-  const GROUPS = ['Main', 'Data & Pages', 'Account', 'Auth Templates'];
+  const GROUPS = APP_CONFIG.navGroups;
 
   let openGroups = $state({
     Main: true,
@@ -48,11 +49,11 @@
   aria-label="Primary Sidebar"
 >
   <div class="brand">
-    <img src="/sakuga-icon.png" alt="Sakuga VFX Logo" class="brand-logo" width="38" height="38" />
+    <img src={APP_CONFIG.logo} alt={`${APP_CONFIG.name} Logo`} class="brand-logo" width="38" height="38" />
     {#if !dashboard.sidebarCollapsed}
       <div class="brand-text">
-        <span class="sakuga-title brand-name">Sakuga VFX</span>
-        <span class="brand-sub">Dashboard Template</span>
+        <span class="sakuga-title brand-name">{APP_CONFIG.name}</span>
+        <span class="brand-sub">{APP_CONFIG.subtitle}</span>
       </div>
     {/if}
   </div>
