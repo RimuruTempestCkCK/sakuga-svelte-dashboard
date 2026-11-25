@@ -3,6 +3,33 @@
   import { NAV_ITEMS, dashboard, navigate } from './store.svelte.js';
 
   const GROUPS = ['Main', 'Data & Pages', 'Account', 'Auth Templates'];
+
+  let openGroups = $state({
+    Main: true,
+    'Data & Pages': true,
+    Account: true,
+    'Auth Templates': false,
+  });
+
+  // Auto-expand the parent group whenever the active route belongs to it
+  $effect(() => {
+    const activeItem = NAV_ITEMS.find((i) => i.id === dashboard.page);
+    if (activeItem && !openGroups[activeItem.group]) {
+      openGroups = { ...openGroups, [activeItem.group]: true };
+    }
+  });
+
+  function toggleGroup(group) {
+    openGroups = { ...openGroups, [group]: !openGroups[group] };
+  }
+
+  function isGroupActive(group) {
+    return NAV_ITEMS.some((i) => i.group === group && i.id === dashboard.page);
+  }
+
+  function groupId(group) {
+    return `nav-group-${group.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  }
 </script>
 
 {#if dashboard.mobileNavOpen}
@@ -30,30 +57,52 @@
     {/if}
   </div>
 
-  <nav class="nav">
+  <nav class="nav" aria-label="Dashboard Navigation">
     {#each GROUPS as group}
-      {#if !dashboard.sidebarCollapsed}
-        <div class="nav-group-label">{group}</div>
-      {/if}
+      {@const items = NAV_ITEMS.filter((i) => i.group === group)}
+      {@const isOpen = !!openGroups[group]}
+      {@const hasActive = isGroupActive(group)}
 
-      {#each NAV_ITEMS.filter((i) => i.group === group) as item}
-        <button
-          type="button"
-          class="nav-item"
-          class:active={dashboard.page === item.id}
-          title={dashboard.sidebarCollapsed ? item.label : undefined}
-          onclick={() => navigate(item.id)}
-        >
-          <span class="nav-icon" aria-hidden="true">
-            <Icon name={item.icon} size={17} />
-          </span>
-          {#if !dashboard.sidebarCollapsed}
-            <span class="nav-label">{item.label}</span>
-          {:else}
-            <span class="nav-tooltip" role="tooltip">{item.label}</span>
-          {/if}
-        </button>
-      {/each}
+      <div class="nav-group" class:collapsed-group={dashboard.sidebarCollapsed}>
+        {#if !dashboard.sidebarCollapsed}
+          <button
+            type="button"
+            class="group-toggle"
+            class:group-active={hasActive}
+            aria-expanded={isOpen}
+            aria-controls={groupId(group)}
+            onclick={() => toggleGroup(group)}
+          >
+            <span>{group}</span>
+            <span class="chevron" class:rotated={isOpen} aria-hidden="true">
+              <Icon name="chevron-right" size={14} />
+            </span>
+          </button>
+        {/if}
+
+        {#if dashboard.sidebarCollapsed || isOpen}
+          <div class="group-items" id={groupId(group)}>
+            {#each items as item}
+              <button
+                type="button"
+                class="nav-item"
+                class:active={dashboard.page === item.id}
+                aria-current={dashboard.page === item.id ? 'page' : undefined}
+                onclick={() => navigate(item.id)}
+              >
+                <span class="nav-icon" aria-hidden="true">
+                  <Icon name={item.icon} size={17} />
+                </span>
+                {#if !dashboard.sidebarCollapsed}
+                  <span class="nav-label">{item.label}</span>
+                {:else}
+                  <span class="nav-tooltip" role="tooltip">{item.label}</span>
+                {/if}
+              </button>
+            {/each}
+          </div>
+        {/if}
+      </div>
     {/each}
   </nav>
 
@@ -89,7 +138,7 @@
     left: 0;
     bottom: 0;
     width: var(--sidebar-w);
-    background: var(--surface);
+    background: var(--sidebar-bg, var(--surface));
     border-right: 1.5px solid var(--line);
     display: flex;
     flex-direction: column;
@@ -143,7 +192,7 @@
   .nav {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     flex: 1;
     width: 100%;
     overflow-y: auto;
@@ -153,15 +202,56 @@
   .sidebar.collapsed .nav {
     overflow: visible;
     padding-right: 0;
+    gap: 4px;
   }
 
-  .nav-group-label {
-    font-size: 10.5px;
+  .nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .group-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--mute);
+    font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--mute);
-    padding: 10px 10px 4px;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .group-toggle:hover {
+    color: var(--text);
+    background: var(--chip);
+  }
+
+  .group-toggle.group-active {
+    color: var(--text);
+  }
+
+  .chevron {
+    display: grid;
+    place-items: center;
+    transition: transform 0.18s ease;
+  }
+
+  .chevron.rotated {
+    transform: rotate(90deg);
+  }
+
+  .group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
   }
 
   .nav-item {
@@ -282,6 +372,15 @@
     font-size: 11.5px;
     color: var(--mute);
     line-height: 1.35;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar,
+    .chevron,
+    .nav-item,
+    .nav-tooltip {
+      transition: none;
+    }
   }
 
   @media (max-width: 900px) {
