@@ -1,4 +1,5 @@
 <script>
+  import Modal from '../Modal.svelte';
   import {
     THEME_PRESETS,
     dashboard,
@@ -6,6 +7,8 @@
     setCustomization,
     setSidebarCollapsed,
     resetCustomization,
+    restoreDemoNotifications,
+    restoreDefaultDashboard,
     showToast,
     logEvent,
   } from '../store.svelte.js';
@@ -13,6 +16,8 @@
   let saveBtn = $state();
   let particleDensity = $state(85);
   let sfxLabels = $state(true);
+  let confirmModalOpen = $state(false);
+  let confirmAction = $state(null); // 'theme' | 'notifications' | 'all'
 
   const ACCENT_SWATCHES = [
     { label: 'Default', value: '' },
@@ -29,9 +34,24 @@
     setTimeout(() => saveBtn?.done?.(), 700);
   }
 
-  function handleReset() {
-    resetCustomization();
-    showToast('Reset to Classic Sakuga Paper defaults', 'info');
+  function askReset(action) {
+    confirmAction = action;
+    confirmModalOpen = true;
+  }
+
+  function runConfirmedReset() {
+    if (confirmAction === 'theme') {
+      resetCustomization();
+      showToast('Theme & layout preferences reset', 'info');
+    } else if (confirmAction === 'notifications') {
+      restoreDemoNotifications();
+      showToast('Notification demo restored', 'success');
+    } else if (confirmAction === 'all') {
+      restoreDefaultDashboard();
+      showToast('Default dashboard state restored', 'success');
+    }
+    confirmModalOpen = false;
+    confirmAction = null;
   }
 </script>
 
@@ -203,12 +223,54 @@
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
       <sakuga-button bind:this={saveBtn} onclick={handleSave}>Save Preferences</sakuga-button>
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-      <sakuga-button variant="secondary" onclick={handleReset}>
+      <sakuga-button variant="secondary" onclick={() => askReset('theme')}>
         Reset Default
       </sakuga-button>
     </div>
   </div>
+
+  <div class="card full-span">
+    <div class="card-head">
+      <div>
+        <h2 class="card-title">Demo Data & State Management</h2>
+        <p class="card-desc">Safely reset theme preferences, notification demo, or full dashboard state (requires confirmation).</p>
+      </div>
+      <span class="badge">Local State</span>
+    </div>
+
+    <div class="demo-actions">
+      <button type="button" class="pill" onclick={() => askReset('theme')}>
+        Reset Theme Preferences
+      </button>
+      <button type="button" class="pill" onclick={() => askReset('notifications')}>
+        Reset Notification Demo
+      </button>
+      <button type="button" class="pill danger" onclick={() => askReset('all')}>
+        Restore Default Dashboard State
+      </button>
+    </div>
+  </div>
 </div>
+
+<Modal
+  bind:open={confirmModalOpen}
+  title="Confirm Reset"
+  subtitle="Please confirm before resetting saved preferences or demo data."
+>
+  <p style="font-size: 14px; line-height: 1.5;">
+    {#if confirmAction === 'theme'}
+      Reset semua pengaturan tema, accent color, border radius, dan density ke default?
+    {:else if confirmAction === 'notifications'}
+      Pulihkan daftar notifikasi demo awal?
+    {:else}
+      Pulihkan seluruh state dashboard (tema, sidebar, profil user, notifikasi, dan log) ke kondisi awal?
+    {/if}
+  </p>
+  <div class="card-footer">
+    <button type="button" class="pill danger-solid" onclick={runConfirmedReset}>Confirm Reset</button>
+    <button type="button" class="pill" onclick={() => (confirmModalOpen = false)}>Cancel</button>
+  </div>
+</Modal>
 
 <style>
   .settings-grid {
@@ -319,12 +381,19 @@
     --sk-slider-width: 190px;
   }
 
-  .pref-actions {
+  .pref-actions,
+  .demo-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 14px;
     padding-top: 12px;
     border-top: 1.5px solid var(--line);
+  }
+
+  .demo-actions {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
   }
 </style>

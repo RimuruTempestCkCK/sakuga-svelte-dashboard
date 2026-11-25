@@ -355,7 +355,17 @@ export function resetCustomization() {
   dashboard.density = 'comfortable';
   dashboard.sidebarStyle = 'default';
   dashboard.sidebarCollapsed = false;
-  applyTheme('paper');
+  applyTheme(APP_CONFIG.defaultTheme || 'paper');
+}
+
+export function restoreDefaultDashboard() {
+  dashboard.searchQuery = '';
+  dashboard.user = { ...APP_CONFIG.defaultUser };
+  restoreDemoNotifications();
+  dashboard.eventLog = [
+    { id: Date.now(), time: new Date().toTimeString().slice(0, 5), text: 'Dashboard state restored to defaults' },
+  ];
+  resetCustomization();
 }
 
 export function toggleDarkMode() {
