@@ -1,5 +1,5 @@
 <script>
-  import { showToast } from '../store.svelte.js';
+  import { logEvent, showToast } from '../store.svelte.js';
 
   let period = $state('30d');
 
@@ -27,6 +27,31 @@
   };
 
   let bars = $derived(SERIES[period] || SERIES['30d']);
+
+  function exportCsv() {
+    if (!bars.length) {
+      showToast('Tidak ada data untuk diexport');
+      return;
+    }
+    try {
+      const header = 'Period,Label,Frames_Rendered_K';
+      const rows = bars.map((b) => `${period},${b.label},${b.val}`);
+      const csv = [header, ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sakuga-analytics-${period}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      logEvent(`Exported sakuga-analytics-${period}.csv (${bars.length} rows)`);
+      showToast(`Downloaded sakuga-analytics-${period}.csv`);
+    } catch {
+      showToast('Gagal mengexport CSV');
+    }
+  }
 </script>
 
 <div class="analytics-page">
@@ -48,7 +73,7 @@
         </sakuga-tabs>
 
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-        <sakuga-button variant="secondary" onclick={() => showToast(`Exported ${period} CSV report`)}>
+        <sakuga-button variant="secondary" onclick={exportCsv}>
           Export CSV
         </sakuga-button>
       </div>

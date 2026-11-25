@@ -40,8 +40,9 @@
     <div class="card-head">
       <div>
         <h2>FX & Motion Preferences</h2>
-        <p class="card-desc">Configure canvas particle density and manga lettering display.</p>
+        <p class="card-desc">UI preference simulation controls (logged to Studio Feed; browser <code>prefers-reduced-motion</code> controls engine FX).</p>
       </div>
+      <span class="badge">UI Simulation</span>
     </div>
 
     <div class="pref-list">
