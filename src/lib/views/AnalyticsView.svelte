@@ -28,6 +28,11 @@
 
   let bars = $derived(SERIES[period] || SERIES['30d']);
 
+  function csvCell(value) {
+    const s = String(value ?? '');
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  }
+
   function exportCsv() {
     if (!bars.length) {
       showToast('Tidak ada data untuk diexport');
@@ -35,7 +40,7 @@
     }
     try {
       const header = 'Period,Label,Frames_Rendered_K';
-      const rows = bars.map((b) => `${period},${b.label},${b.val}`);
+      const rows = bars.map((b) => [period, b.label, b.val].map(csvCell).join(','));
       const csv = [header, ...rows].join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);

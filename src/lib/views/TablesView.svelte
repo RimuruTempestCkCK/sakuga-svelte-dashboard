@@ -64,7 +64,12 @@
 
   let totalPages = $derived(Math.max(1, Math.ceil(filteredProjects.length / pageSize)));
 
+  let lastSearch = $state(dashboard.searchQuery);
   $effect(() => {
+    if (dashboard.searchQuery !== lastSearch) {
+      lastSearch = dashboard.searchQuery;
+      currentPage = 1;
+    }
     if (currentPage > totalPages) {
       currentPage = totalPages;
     }
