@@ -4,6 +4,7 @@
   import Sidebar from './lib/Sidebar.svelte';
   import Header from './lib/Header.svelte';
   import CommandPalette from './lib/CommandPalette.svelte';
+  import ToastStack from './lib/ToastStack.svelte';
   import Modal from './lib/Modal.svelte';
   import OverviewView from './lib/views/OverviewView.svelte';
   import AnalyticsView from './lib/views/AnalyticsView.svelte';
@@ -124,6 +125,8 @@
 <div class="global-toast">
   <sakuga-toast bind:this={dashboard.toastEl} duration="2.6"></sakuga-toast>
 </div>
+
+<ToastStack />
 
 <CommandPalette bind:open={dashboard.commandPaletteOpen} />
 

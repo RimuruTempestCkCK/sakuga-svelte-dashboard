@@ -130,6 +130,7 @@
     <div
       class="palette-box"
       role="dialog"
+      tabindex="-1"
       aria-modal="true"
       aria-label="Command Palette"
       onkeydown={handleKeyDown}

@@ -173,10 +173,11 @@ export const dashboard = $state({
     email: 'akira@sakuga.studio',
     initials: 'AT',
   },
+  toasts: [],
   notifications: [
-    { id: 1, title: 'Shot #042 Render Complete', time: '2m ago', unread: true },
-    { id: 2, title: 'New comment from Yui on Cut 07', time: '18m ago', unread: true },
-    { id: 3, title: 'Weekly export package ready', time: '1h ago', unread: false },
+    { id: 1, title: 'Shot #042 Render Complete', time: '2m ago', unread: true, type: 'success' },
+    { id: 2, title: 'New comment from Yui on Cut 07', time: '18m ago', unread: true, type: 'info' },
+    { id: 3, title: 'Cache threshold at 85%', time: '1h ago', unread: false, type: 'warning' },
   ],
   eventLog: [
     { id: 1, time: '13:05', text: 'SakugaFX canvas initialized at 60fps' },
@@ -251,11 +252,27 @@ export function updateUser(nextUser) {
   writePrefs();
 }
 
-export function showToast(message) {
-  if (dashboard.toastEl && typeof dashboard.toastEl.show === 'function') {
-    dashboard.toastEl.show(message);
+export function dismissToast(id) {
+  dashboard.toasts = dashboard.toasts.filter((t) => t.id !== id);
+}
+
+export function showToast(message, type) {
+  const inferred =
+    type ||
+    (/gagal|error|wajib|invalid/i.test(message)
+      ? 'error'
+      : /deleted|removed|warning/i.test(message)
+        ? 'warning'
+        : /added|updated|saved|downloaded|created|completed|welcome|activated/i.test(message)
+          ? 'success'
+          : 'info');
+
+  const id = Date.now() + Math.random();
+  dashboard.toasts = [...dashboard.toasts.slice(-3), { id, message, type: inferred }];
+  if (typeof window !== 'undefined') {
+    setTimeout(() => dismissToast(id), 3400);
   }
-  logEvent(`Toast: "${message}"`);
+  logEvent(`Toast (${inferred}): "${message}"`);
 }
 
 export function logEvent(text) {
@@ -298,6 +315,23 @@ export function toggleDarkMode() {
   }
 }
 
+export function markNotificationRead(id) {
+  dashboard.notifications = dashboard.notifications.map((n) =>
+    n.id === id ? { ...n, unread: false } : n
+  );
+}
+
 export function markAllNotificationsRead() {
   dashboard.notifications = dashboard.notifications.map((n) => ({ ...n, unread: false }));
+}
+
+export function clearNotifications() {
+  dashboard.notifications = [];
+}
+
+export function restoreDemoNotifications() {
+  dashboard.notifications = [
+    { id: Date.now() + 1, title: 'Shot #042 Render Complete', time: 'Just now', unread: true, type: 'success' },
+    { id: Date.now() + 2, title: 'New comment from Yui on Cut 07', time: '18m ago', unread: true, type: 'info' },
+  ];
 }

@@ -7,7 +7,10 @@
     navigate,
     showToast,
     toggleDarkMode,
+    markNotificationRead,
     markAllNotificationsRead,
+    clearNotifications,
+    restoreDemoNotifications,
     setSidebarCollapsed,
   } from './store.svelte.js';
 
@@ -194,26 +197,61 @@
         {#if notifOpen}
           <div class="dropdown notif-dropdown" role="dialog" aria-label="Notifications">
             <div class="dropdown-head">
-              <strong>Notifications</strong>
-              <button type="button" class="text-link" onclick={markAllNotificationsRead}>Mark all read</button>
+              <div>
+                <strong>Notifications</strong>
+                <div class="notif-sub">Simulated local feed</div>
+              </div>
+              <div class="notif-head-acts">
+                {#if unreadCount > 0}
+                  <button type="button" class="text-link" onclick={markAllNotificationsRead}>Mark all</button>
+                {/if}
+                {#if dashboard.notifications.length > 0}
+                  <button type="button" class="text-link mute-link" onclick={clearNotifications}>Clear</button>
+                {/if}
+              </div>
             </div>
-            <ul class="notif-list">
-              {#each dashboard.notifications as n (n.id)}
-                <li class="notif-item" class:unread={n.unread}>
-                  <div class="notif-title">{n.title}</div>
-                  <span class="notif-time">{n.time}</span>
-                </li>
-              {/each}
-            </ul>
+
+            {#if dashboard.notifications.length === 0}
+              <div class="notif-empty">
+                <Icon name="bell" size={18} />
+                <span>No notifications</span>
+                <button type="button" class="pill sm-pill" onclick={restoreDemoNotifications}>Restore demo</button>
+              </div>
+            {:else}
+              <ul class="notif-list">
+                {#each dashboard.notifications as n (n.id)}
+                  <li>
+                    <button
+                      type="button"
+                      class="notif-item"
+                      class:unread={n.unread}
+                      onclick={() => markNotificationRead(n.id)}
+                    >
+                      <span class={`n-type t-${n.type || 'info'}`} aria-hidden="true">
+                        <Icon name={n.type === 'success' ? 'zap' : n.type === 'warning' ? 'alert-circle' : 'bell'} size={13} />
+                      </span>
+                      <span class="n-body">
+                        <span class="notif-title">{n.title}</span>
+                        <span class="notif-time">{n.time}</span>
+                      </span>
+                      {#if n.unread}
+                        <span class="unread-dot" aria-label="Unread"></span>
+                      {/if}
+                    </button>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+
             <button
               type="button"
               class="dropdown-cta"
               onclick={() => {
                 notifOpen = false;
-                showToast('All caught up!');
+                showToast('Notification check complete!', 'success');
               }}
             >
-              Test Sakuga Toast
+              Trigger Sample Toast
             </button>
           </div>
         {/if}
@@ -504,6 +542,37 @@
     cursor: pointer;
   }
 
+  .notif-sub {
+    font-size: 11px;
+    color: var(--mute);
+  }
+
+  .notif-head-acts {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mute-link {
+    color: var(--mute);
+  }
+
+  .notif-empty {
+    padding: 18px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--mute);
+  }
+
+  .sm-pill {
+    height: 28px;
+    font-size: 11.5px;
+    padding: 0 10px;
+  }
+
   .notif-list {
     list-style: none;
     margin: 0;
@@ -511,17 +580,63 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    max-height: 240px;
+    overflow-y: auto;
   }
 
   .notif-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 9px;
     padding: 8px 10px;
     border-radius: 10px;
     background: var(--surface-alt);
     border: 1px solid transparent;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
   }
 
   .notif-item.unread {
     border-color: var(--sk-soft, #b8b3ff);
+  }
+
+  .n-type {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    background: var(--chip);
+  }
+
+  .n-type.t-success {
+    color: var(--success-ink, #059669);
+  }
+
+  .n-type.t-warning {
+    color: var(--warn-ink, #b45309);
+  }
+
+  .n-type.t-info {
+    color: var(--sk-pri, #8f8df7);
+  }
+
+  .n-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .unread-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--sk-acc, #ff5fa8);
+    flex-shrink: 0;
   }
 
   .notif-title {
