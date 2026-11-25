@@ -195,7 +195,7 @@
 
   .auth-submit {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     padding-top: 4px;
   }
 
