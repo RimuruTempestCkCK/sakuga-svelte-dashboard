@@ -1,14 +1,14 @@
 export const NAV_ITEMS = [
-  { id: 'overview', label: 'Overview', group: 'Main', icon: 'grid', hint: 'KPIs & live render status' },
-  { id: 'analytics', label: 'Analytics', group: 'Main', icon: 'chart', hint: 'Metrics, charts & reports' },
-  { id: 'tables', label: 'Data Tables', group: 'Data & Pages', icon: 'table', hint: 'Projects, invoices & team tables' },
-  { id: 'tasks', label: 'Render Queue', group: 'Data & Pages', icon: 'layers', hint: 'Tabs, progress & job queue' },
-  { id: 'components', label: 'All 12 Controls', group: 'Data & Pages', icon: 'sparkles', hint: 'Every Sakuga VFX control live' },
-  { id: 'studio', label: 'Studio Form', group: 'Data & Pages', icon: 'sliders', hint: 'FormData & input controls' },
-  { id: 'profile', label: 'Profile', group: 'Account', icon: 'user', hint: 'Account & studio profile' },
-  { id: 'settings', label: 'Theme & FX', group: 'Account', icon: 'palette', hint: 'Dark mode, --sk-* & presets' },
-  { id: 'login', label: 'Login Page', group: 'Auth Templates', icon: 'lock', hint: 'Full-screen sign in template' },
-  { id: 'register', label: 'Register Page', group: 'Auth Templates', icon: 'userplus', hint: 'Full-screen sign up template' },
+  { id: 'overview', label: 'Overview', group: 'Main', icon: 'grid' },
+  { id: 'analytics', label: 'Analytics', group: 'Main', icon: 'chart' },
+  { id: 'tables', label: 'Data Tables', group: 'Data & Pages', icon: 'table' },
+  { id: 'tasks', label: 'Render Queue', group: 'Data & Pages', icon: 'layers' },
+  { id: 'components', label: 'All 12 Controls', group: 'Data & Pages', icon: 'sparkles' },
+  { id: 'studio', label: 'Studio Form', group: 'Data & Pages', icon: 'sliders' },
+  { id: 'profile', label: 'Profile', group: 'Account', icon: 'user' },
+  { id: 'settings', label: 'Theme & FX', group: 'Account', icon: 'palette' },
+  { id: 'login', label: 'Login Page', group: 'Auth Templates', icon: 'lock' },
+  { id: 'register', label: 'Register Page', group: 'Auth Templates', icon: 'userplus' },
 ];
 
 export const PAGE_TO_HASH = {

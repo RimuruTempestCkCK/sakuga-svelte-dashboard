@@ -129,7 +129,6 @@
       </div>
       <div class="title-row">
         <h1 class="page-title sakuga-title">{currentNav.label}</h1>
-        <span class="hint-pill">{currentNav.hint}</span>
       </div>
     </div>
   </div>
@@ -353,17 +352,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .hint-pill {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: var(--mute);
-    background: var(--chip);
-    border: 1px solid var(--line);
-    padding: 2px 9px;
-    border-radius: 999px;
-    white-space: nowrap;
   }
 
   .header-right {
@@ -600,12 +588,6 @@
   .mobile-search-input :global(sakuga-input) {
     display: block;
     width: 100%;
-  }
-
-  @media (max-width: 1320px) {
-    .hint-pill {
-      display: none;
-    }
   }
 
   @media (max-width: 1120px) {
