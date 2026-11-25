@@ -93,7 +93,7 @@
   .settings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-    gap: 18px;
+    gap: 14px;
     align-items: start;
   }
 
@@ -101,8 +101,8 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 18px;
+    gap: 10px;
+    margin-bottom: 12px;
   }
 
   .card-head h2 {
@@ -130,7 +130,7 @@
   .pref-list {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 12px;
   }
 
   .pref-row {
@@ -138,8 +138,8 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding-bottom: 14px;
+    gap: 10px;
+    padding-bottom: 10px;
     border-bottom: 1px dashed var(--line);
   }
 
@@ -156,9 +156,9 @@
   .pref-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 20px;
-    padding-top: 16px;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 12px;
     border-top: 1.5px solid var(--line);
   }
 </style>

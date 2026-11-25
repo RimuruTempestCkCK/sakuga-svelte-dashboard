@@ -53,13 +53,13 @@
 
   .modal-box {
     width: 100%;
-    max-width: 520px;
+    max-width: 500px;
     background: var(--surface);
     border: 2px solid var(--sk-ink, #1d1a4a);
-    border-radius: 20px;
-    box-shadow: 7px 8px 0 var(--sk-soft, #b8b3ff);
-    padding: 24px;
-    gap: 18px;
+    border-radius: 18px;
+    box-shadow: 6px 7px 0 var(--sk-soft, #b8b3ff);
+    padding: 18px 20px;
+    gap: 14px;
     animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 

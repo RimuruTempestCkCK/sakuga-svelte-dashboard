@@ -264,13 +264,13 @@
   .overview {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 14px;
   }
 
   .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-    gap: 16px;
+    gap: 12px;
   }
 
   .kpi-card {
@@ -304,24 +304,24 @@
   .main-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-    gap: 18px;
+    gap: 14px;
   }
 
   .card-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
+    gap: 10px;
+    margin-bottom: 10px;
   }
 
   .card-head h2 {
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 700;
   }
 
   .card-desc {
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--mute);
     margin-top: 2px;
   }
@@ -330,23 +330,23 @@
     flex: 1;
     display: grid;
     place-items: center;
-    padding: 36px 12px 24px;
-    min-height: 190px;
+    padding: 20px 10px 12px;
+    min-height: 140px;
   }
 
   .card-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    padding-top: 14px;
+    gap: 10px;
+    padding-top: 12px;
     border-top: 1.5px solid var(--line);
   }
 
   .quick-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
   }
 
   .quick-row {
@@ -354,8 +354,8 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding-bottom: 12px;
+    gap: 10px;
+    padding-bottom: 10px;
     border-bottom: 1px dashed var(--line);
   }
 

@@ -89,16 +89,16 @@
 <style>
   .profile-grid {
     display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 18px;
+    grid-template-columns: 280px 1fr;
+    gap: 14px;
     align-items: start;
   }
 
   .identity-card {
     align-items: center;
     text-align: center;
-    gap: 10px;
-    padding: 28px 20px;
+    gap: 8px;
+    padding: 20px 16px;
   }
 
   .big-avatar {
@@ -143,19 +143,19 @@
   .fields {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    margin-top: 18px;
+    gap: 14px;
+    margin-top: 12px;
   }
 
   .field-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 18px;
+    gap: 14px;
   }
 
   .form-actions {
-    margin-top: 22px;
-    padding-top: 16px;
+    margin-top: 16px;
+    padding-top: 12px;
     border-top: 1.5px solid var(--line);
   }
 

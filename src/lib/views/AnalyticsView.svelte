@@ -107,7 +107,7 @@
   .analytics-page {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
   }
 
   .top-row {
@@ -139,7 +139,7 @@
   .charts-grid {
     display: grid;
     grid-template-columns: 1.3fr 1fr;
-    gap: 18px;
+    gap: 14px;
   }
 
   .chart-head {
@@ -147,7 +147,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 18px;
+    margin-bottom: 12px;
   }
 
   .chart-head h3 {
@@ -159,9 +159,9 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-around;
-    gap: 14px;
-    height: 220px;
-    padding-top: 12px;
+    gap: 12px;
+    height: 185px;
+    padding-top: 8px;
   }
 
   .bar-col {

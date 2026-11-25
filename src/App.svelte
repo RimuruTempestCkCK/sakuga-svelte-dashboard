@@ -80,7 +80,7 @@
 
   .content {
     flex: 1;
-    padding: 24px;
+    padding: 16px 20px;
     max-width: 1280px;
     width: 100%;
     margin: 0 auto;
@@ -105,7 +105,7 @@
     }
 
     .content {
-      padding: 16px;
+      padding: 12px;
     }
   }
 </style>

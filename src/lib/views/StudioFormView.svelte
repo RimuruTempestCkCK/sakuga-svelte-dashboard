@@ -123,7 +123,7 @@
   .studio-grid {
     display: grid;
     grid-template-columns: 1.4fr 1fr;
-    gap: 18px;
+    gap: 14px;
     align-items: start;
   }
 
@@ -132,7 +132,7 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
   }
 
   .form-head h2,
@@ -157,31 +157,31 @@
   .form-fields {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 14px;
   }
 
   .field-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 18px;
+    gap: 14px;
     align-items: center;
   }
 
   .slider-block {
-    padding-top: 14px;
+    padding-top: 10px;
     --sk-slider-width: 260px;
   }
 
   .toggles-row {
-    gap: 24px;
+    gap: 18px;
   }
 
   .form-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 26px;
-    padding-top: 16px;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 12px;
     border-top: 1.5px solid var(--line);
   }
 

@@ -77,7 +77,6 @@
           >
             Remember me
           </sakuga-checkbox>
-          <sakuga-tooltip text="Demo template: any credentials will sign you in." label="Login hint"></sakuga-tooltip>
         </div>
 
         <div class="auth-submit">

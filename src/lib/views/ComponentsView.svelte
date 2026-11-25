@@ -157,7 +157,7 @@
   .gallery-wrap {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 12px;
   }
 
   .gallery-intro {
@@ -167,13 +167,13 @@
     justify-content: space-between;
     gap: 10px;
     color: var(--mute);
-    font-size: 14px;
+    font-size: 13.5px;
   }
 
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-    gap: 18px;
+    gap: 14px;
     grid-auto-flow: dense;
   }
 
@@ -187,7 +187,7 @@
 
   .gallery-card h2 {
     margin: 0;
-    padding: 16px 18px 0;
+    padding: 14px 16px 0;
     font-size: 15px;
     font-weight: 700;
   }
@@ -196,30 +196,30 @@
     margin-left: 6px;
     color: var(--mute);
     font-weight: 500;
-    font-size: 13px;
+    font-size: 12.5px;
   }
 
   .gallery-card .how {
-    margin: 3px 0 0;
-    padding: 0 18px;
+    margin: 2px 0 0;
+    padding: 0 16px;
     color: var(--mute);
-    font-size: 13px;
+    font-size: 12.5px;
   }
 
   .stage {
     flex: 1;
     display: grid;
     place-items: center;
-    min-height: 220px;
-    padding: 24px 16px;
+    min-height: 135px;
+    padding: 14px 12px;
   }
 
   .said {
-    min-height: 1.6em;
+    min-height: 1.4em;
     margin: 0;
-    padding: 0 16px 14px;
+    padding: 0 14px 12px;
     color: var(--mute);
-    font-size: 13px;
+    font-size: 12.5px;
     text-align: center;
   }
 
