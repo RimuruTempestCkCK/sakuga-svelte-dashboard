@@ -4,15 +4,42 @@
 
   let submitBtn = $state();
   let email = $state('akira@sakuga.studio');
+  let password = $state('sakuga-vfx-2026');
   let remember = $state(true);
+  let showPassword = $state(false);
+  let submitting = $state(false);
+  let errors = $state({ email: '', password: '' });
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validate() {
+    const next = { email: '', password: '' };
+    if (!email.trim()) {
+      next.email = 'Email wajib diisi.';
+    } else if (!EMAIL_RE.test(email.trim())) {
+      next.email = 'Format email tidak valid.';
+    }
+    if (!password) {
+      next.password = 'Password wajib diisi.';
+    } else if (password.length < 6) {
+      next.password = 'Password minimal 6 karakter.';
+    }
+    errors = next;
+    return !next.email && !next.password;
+  }
 
   function handleLogin(e) {
     e.preventDefault();
-    logEvent(`Signed in as ${email}`);
+    if (submitting || !validate()) return;
+    submitting = true;
+    logEvent(`Signed in as ${email.trim()} (UI demo)`);
     showToast('ドン! Welcome back to Sakuga Studio');
     setTimeout(() => {
       submitBtn?.done?.();
-      setTimeout(() => navigate('overview'), 450);
+      setTimeout(() => {
+        submitting = false;
+        navigate('overview');
+      }, 450);
     }, 550);
   }
 </script>
@@ -42,32 +69,60 @@
         </div>
       </div>
 
-      <form class="auth-form" onsubmit={handleLogin}>
+      <form class="auth-form" onsubmit={handleLogin} novalidate>
         <div class="field-group">
           <span class="field-label">Email Address</span>
-          <div class="input-full">
+          <div class="input-full" class:has-error={!!errors.email}>
             <sakuga-input
               name="email"
               type="email"
               label="Email Address"
               value={email}
               placeholder="you@studio.jp"
-              oninput={(e) => (email = e.target.value)}
+              oninput={(e) => {
+                email = e.target.value;
+                if (errors.email) errors = { ...errors, email: '' };
+              }}
             ></sakuga-input>
           </div>
+          {#if errors.email}
+            <span class="field-error">{errors.email}</span>
+          {/if}
         </div>
 
         <div class="field-group">
-          <span class="field-label">Password</span>
-          <div class="input-full">
-            <sakuga-input
-              name="password"
-              type="password"
-              label="Password"
-              value="sakuga-vfx-2026"
-              placeholder="••••••••"
-            ></sakuga-input>
+          <div class="label-row">
+            <span class="field-label">Password</span>
+            <button type="button" class="link-btn sm" onclick={() => navigate('forgot-password')}>
+              Forgot password?
+            </button>
           </div>
+          <div class="password-wrap" class:has-error={!!errors.password}>
+            <div class="input-full">
+              <sakuga-input
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                label="Password"
+                value={password}
+                placeholder="••••••••"
+                oninput={(e) => {
+                  password = e.target.value;
+                  if (errors.password) errors = { ...errors, password: '' };
+                }}
+              ></sakuga-input>
+            </div>
+            <button
+              type="button"
+              class="eye-btn"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              onclick={() => (showPassword = !showPassword)}
+            >
+              <Icon name={showPassword ? 'eye-off' : 'eye'} size={16} />
+            </button>
+          </div>
+          {#if errors.password}
+            <span class="field-error">{errors.password}</span>
+          {/if}
         </div>
 
         <div class="auth-row">
@@ -80,7 +135,9 @@
         </div>
 
         <div class="auth-submit">
-          <sakuga-button bind:this={submitBtn} type="submit">Sign In to Studio</sakuga-button>
+          <sakuga-button bind:this={submitBtn} type="submit" disabled={submitting}>
+            {submitting ? 'Signing in...' : 'Sign In to Studio'}
+          </sakuga-button>
         </div>
       </form>
 
@@ -120,9 +177,9 @@
 
   .auth-card {
     width: 100%;
-    padding: 28px;
+    padding: 24px;
     box-shadow: 7px 8px 0 var(--sk-soft, #b8b3ff);
-    gap: 22px;
+    gap: 18px;
   }
 
   .auth-brand {
@@ -160,29 +217,46 @@
   .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
   }
 
-  .field-group {
+  .label-row {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
 
-  .field-label {
-    font-size: 12.5px;
-    font-weight: 700;
+  .password-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .password-wrap .input-full {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .eye-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    border: 1.5px solid var(--line);
+    background: var(--surface-alt);
     color: var(--text);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
   }
 
-  .input-full {
-    --sk-input-width: 100%;
-    width: 100%;
+  .eye-btn:hover {
+    border-color: var(--sk-soft, #b8b3ff);
   }
 
-  .input-full :global(sakuga-input) {
-    display: block;
-    width: 100%;
+  .has-error {
+    --sk-ink: #e11d48;
   }
 
   .auth-row {
@@ -205,7 +279,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding-top: 16px;
+    padding-top: 14px;
     border-top: 1.5px solid var(--line);
     font-size: 13.5px;
     color: var(--mute);
@@ -220,13 +294,17 @@
     padding: 0;
   }
 
+  .link-btn.sm {
+    font-size: 12px;
+  }
+
   .link-btn:hover {
     text-decoration: underline;
   }
 
   @media (max-width: 480px) {
     .auth-card {
-      padding: 20px;
+      padding: 18px;
     }
   }
 </style>

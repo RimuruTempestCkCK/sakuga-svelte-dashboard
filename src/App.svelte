@@ -13,6 +13,8 @@
   import SettingsView from './lib/views/SettingsView.svelte';
   import LoginView from './lib/views/LoginView.svelte';
   import RegisterView from './lib/views/RegisterView.svelte';
+  import ForgotPasswordView from './lib/views/ForgotPasswordView.svelte';
+  import ResetPasswordView from './lib/views/ResetPasswordView.svelte';
   import NotFoundView from './lib/views/NotFoundView.svelte';
   import { dashboard, initDashboard, syncFromHash } from './lib/store.svelte.js';
 
@@ -40,6 +42,10 @@
     <LoginView />
   {:else if dashboard.page === 'register'}
     <RegisterView />
+  {:else if dashboard.page === 'forgot-password'}
+    <ForgotPasswordView />
+  {:else if dashboard.page === 'reset-password'}
+    <ResetPasswordView />
   {:else}
     <NotFoundView />
   {/if}

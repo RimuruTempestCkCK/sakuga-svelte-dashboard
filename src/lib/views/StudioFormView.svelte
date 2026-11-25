@@ -3,6 +3,10 @@
 
   let formEl = $state();
   let submitBtn = $state();
+  let projectVal = $state('Sakuga Opening Cut 01');
+  let directorVal = $state('animator@studio.jp');
+  let errors = $state({ project: '', director: '' });
+
   let formSnapshot = $state({
     project: 'Sakuga Opening Cut 01',
     director: 'animator@studio.jp',
@@ -12,6 +16,8 @@
     auto_publish: 'on',
     priority: '5',
   });
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   function readForm() {
     if (!formEl) return;
@@ -23,12 +29,39 @@
     formSnapshot = obj;
   }
 
+  function validate() {
+    const next = { project: '', director: '' };
+    if (!projectVal.trim()) {
+      next.project = 'Project Title wajib diisi.';
+    }
+    if (!directorVal.trim()) {
+      next.director = 'Lead Animator Email wajib diisi.';
+    } else if (!EMAIL_RE.test(directorVal.trim())) {
+      next.director = 'Format email tidak valid.';
+    }
+    errors = next;
+    return !next.project && !next.director;
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     readForm();
-    logEvent(`Studio form submitted: ${formSnapshot.project || 'Untitled'}`);
+    if (!validate()) {
+      showToast('Periksa field wajib terlebih dahulu');
+      return;
+    }
+    logEvent(`Studio form submitted: ${formSnapshot.project}`);
     showToast('Studio configuration submitted!');
     setTimeout(() => submitBtn?.done?.(), 700);
+  }
+
+  function handleReset() {
+    formEl?.reset?.();
+    projectVal = 'Sakuga Opening Cut 01';
+    directorVal = 'animator@studio.jp';
+    errors = { project: '', director: '' };
+    setTimeout(readForm, 30);
+    showToast('Form reset');
   }
 </script>
 
@@ -39,10 +72,11 @@
     onsubmit={handleSubmit}
     oninput={readForm}
     onchange={readForm}
+    novalidate
   >
     <div class="form-head">
       <div>
-        <h2>Shot Production Form</h2>
+        <h2 class="card-title">Shot Production Form</h2>
         <p class="card-desc">Every Sakuga value control participates in native <code>FormData</code>.</p>
       </div>
       <sakuga-tooltip text="Submit the form to see FormData update and trigger the confirm impact burst." label="Form help"></sakuga-tooltip>
@@ -50,20 +84,40 @@
 
     <div class="form-fields">
       <div class="field-row">
-        <sakuga-input
-          name="project"
-          label="Project Title"
-          value="Sakuga Opening Cut 01"
-          placeholder="Enter shot name"
-        ></sakuga-input>
+        <div class="field-group">
+          <span class="field-label">Project Title *</span>
+          <sakuga-input
+            name="project"
+            label="Project Title"
+            value={projectVal}
+            placeholder="Enter shot name"
+            oninput={(e) => {
+              projectVal = e.target.value;
+              if (errors.project) errors = { ...errors, project: '' };
+            }}
+          ></sakuga-input>
+          {#if errors.project}
+            <span class="field-error">{errors.project}</span>
+          {/if}
+        </div>
 
-        <sakuga-input
-          name="director"
-          type="email"
-          label="Lead Animator Email"
-          value="animator@studio.jp"
-          placeholder="name@studio.jp"
-        ></sakuga-input>
+        <div class="field-group">
+          <span class="field-label">Lead Animator Email *</span>
+          <sakuga-input
+            name="director"
+            type="email"
+            label="Lead Animator Email"
+            value={directorVal}
+            placeholder="name@studio.jp"
+            oninput={(e) => {
+              directorVal = e.target.value;
+              if (errors.director) errors = { ...errors, director: '' };
+            }}
+          ></sakuga-input>
+          {#if errors.director}
+            <span class="field-error">{errors.director}</span>
+          {/if}
+        </div>
       </div>
 
       <div class="field-block">
@@ -99,21 +153,14 @@
     <div class="form-actions">
       <sakuga-button bind:this={submitBtn} type="submit">Submit Shot</sakuga-button>
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-      <sakuga-button
-        variant="secondary"
-        onclick={() => {
-          formEl?.reset?.();
-          setTimeout(readForm, 30);
-          showToast('Form reset');
-        }}
-      >
+      <sakuga-button variant="secondary" onclick={handleReset}>
         Reset
       </sakuga-button>
     </div>
   </form>
 
   <div class="card inspector-card">
-    <h2>Live FormData Output</h2>
+    <h2 class="card-title">Live FormData Output</h2>
     <p class="card-desc">Values collected directly via <code>new FormData(form)</code>:</p>
     <pre class="json-box mono">{JSON.stringify(formSnapshot, null, 2)}</pre>
   </div>
@@ -135,25 +182,6 @@
     margin-bottom: 14px;
   }
 
-  .form-head h2,
-  .inspector-card h2 {
-    font-size: 16px;
-    font-weight: 700;
-  }
-
-  .card-desc {
-    font-size: 13px;
-    color: var(--mute);
-    margin-top: 3px;
-  }
-
-  .card-desc code {
-    background: var(--chip);
-    padding: 1px 5px;
-    border-radius: 5px;
-    font-size: 12px;
-  }
-
   .form-fields {
     display: flex;
     flex-direction: column;
@@ -164,7 +192,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 14px;
-    align-items: center;
+    align-items: flex-start;
   }
 
   .slider-block {
@@ -174,6 +202,7 @@
 
   .toggles-row {
     gap: 18px;
+    align-items: center;
   }
 
   .form-actions {
@@ -187,7 +216,7 @@
 
   .json-box {
     margin: 14px 0 0;
-    padding: 16px;
+    padding: 14px;
     border-radius: 12px;
     background: var(--surface-alt);
     border: 1.5px solid var(--line);

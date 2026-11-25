@@ -5,27 +5,65 @@
   let submitBtn = $state();
   let fullName = $state('Yui Sato');
   let email = $state('yui@sakuga.studio');
+  let password = $state('sakuga-pass-2026');
+  let confirmPassword = $state('sakuga-pass-2026');
   let role = $state('animator');
   let agreed = $state(true);
+  let showPassword = $state(false);
+  let submitting = $state(false);
+  let errors = $state({ name: '', email: '', password: '', confirm: '', agreed: '' });
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validate() {
+    const next = { name: '', email: '', password: '', confirm: '', agreed: '' };
+    if (!fullName.trim()) {
+      next.name = 'Nama lengkap wajib diisi.';
+    }
+    if (!email.trim()) {
+      next.email = 'Email wajib diisi.';
+    } else if (!EMAIL_RE.test(email.trim())) {
+      next.email = 'Format email tidak valid.';
+    }
+    if (!password) {
+      next.password = 'Password wajib diisi.';
+    } else if (password.length < 6) {
+      next.password = 'Password minimal 6 karakter.';
+    }
+    if (confirmPassword !== password) {
+      next.confirm = 'Konfirmasi password tidak cocok.';
+    }
+    if (!agreed) {
+      next.agreed = 'Anda harus menyetujui Terms & VFX License.';
+    }
+    errors = next;
+    return !next.name && !next.email && !next.password && !next.confirm && !next.agreed;
+  }
 
   function handleRegister(e) {
     e.preventDefault();
+    if (submitting || !validate()) return;
+    submitting = true;
+    const cleanName = fullName.trim();
     updateUser({
-      name: fullName || 'New Animator',
+      name: cleanName,
       role: role === 'director' ? 'Art Director' : 'Key Animator',
-      email: email || 'user@sakuga.studio',
-      initials: (fullName || 'NA')
+      email: email.trim(),
+      initials: cleanName
         .split(' ')
         .map((w) => w[0])
         .join('')
         .slice(0, 2)
         .toUpperCase(),
     });
-    logEvent(`Registered account for ${dashboard.user.name}`);
+    logEvent(`Registered account for ${cleanName} (UI demo)`);
     showToast('ズザッ! Account created!');
     setTimeout(() => {
       submitBtn?.done?.();
-      setTimeout(() => navigate('overview'), 450);
+      setTimeout(() => {
+        submitting = false;
+        navigate('overview');
+      }, 450);
     }, 550);
   }
 </script>
@@ -55,45 +93,94 @@
         </div>
       </div>
 
-      <form class="auth-form" onsubmit={handleRegister}>
+      <form class="auth-form" onsubmit={handleRegister} novalidate>
         <div class="field-group">
           <span class="field-label">Full Name</span>
-          <div class="input-full">
+          <div class="input-full" class:has-error={!!errors.name}>
             <sakuga-input
               name="name"
               label="Full Name"
               value={fullName}
               placeholder="Your name"
-              oninput={(e) => (fullName = e.target.value)}
+              oninput={(e) => {
+                fullName = e.target.value;
+                if (errors.name) errors = { ...errors, name: '' };
+              }}
             ></sakuga-input>
           </div>
+          {#if errors.name}
+            <span class="field-error">{errors.name}</span>
+          {/if}
         </div>
 
         <div class="field-group">
           <span class="field-label">Work Email</span>
-          <div class="input-full">
+          <div class="input-full" class:has-error={!!errors.email}>
             <sakuga-input
               name="email"
               type="email"
               label="Work Email"
               value={email}
               placeholder="you@studio.jp"
-              oninput={(e) => (email = e.target.value)}
+              oninput={(e) => {
+                email = e.target.value;
+                if (errors.email) errors = { ...errors, email: '' };
+              }}
             ></sakuga-input>
           </div>
+          {#if errors.email}
+            <span class="field-error">{errors.email}</span>
+          {/if}
         </div>
 
         <div class="field-group">
           <span class="field-label">Password</span>
-          <div class="input-full">
+          <div class="password-wrap" class:has-error={!!errors.password}>
+            <div class="input-full">
+              <sakuga-input
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                label="Password"
+                value={password}
+                placeholder="Create password"
+                oninput={(e) => {
+                  password = e.target.value;
+                  if (errors.password) errors = { ...errors, password: '' };
+                }}
+              ></sakuga-input>
+            </div>
+            <button
+              type="button"
+              class="eye-btn"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              onclick={() => (showPassword = !showPassword)}
+            >
+              <Icon name={showPassword ? 'eye-off' : 'eye'} size={16} />
+            </button>
+          </div>
+          {#if errors.password}
+            <span class="field-error">{errors.password}</span>
+          {/if}
+        </div>
+
+        <div class="field-group">
+          <span class="field-label">Confirm Password</span>
+          <div class="input-full" class:has-error={!!errors.confirm}>
             <sakuga-input
-              name="password"
-              type="password"
-              label="Password"
-              value="sakuga-pass-2026"
-              placeholder="Create password"
+              name="confirmPassword"
+              type={showPassword ? 'text' : 'password'}
+              label="Confirm Password"
+              value={confirmPassword}
+              placeholder="Repeat password"
+              oninput={(e) => {
+                confirmPassword = e.target.value;
+                if (errors.confirm) errors = { ...errors, confirm: '' };
+              }}
             ></sakuga-input>
           </div>
+          {#if errors.confirm}
+            <span class="field-error">{errors.confirm}</span>
+          {/if}
         </div>
 
         <div class="field-group">
@@ -112,14 +199,22 @@
         <div class="agree-row">
           <sakuga-checkbox
             checked={agreed}
-            onchange={(e) => (agreed = e.target.checked)}
+            onchange={(e) => {
+              agreed = e.target.checked;
+              if (errors.agreed) errors = { ...errors, agreed: '' };
+            }}
           >
             I agree to the Studio Terms & VFX License
           </sakuga-checkbox>
+          {#if errors.agreed}
+            <span class="field-error">{errors.agreed}</span>
+          {/if}
         </div>
 
         <div class="auth-submit">
-          <sakuga-button bind:this={submitBtn} type="submit">Create Workspace</sakuga-button>
+          <sakuga-button bind:this={submitBtn} type="submit" disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Workspace'}
+          </sakuga-button>
         </div>
       </form>
 
@@ -159,9 +254,9 @@
 
   .auth-card {
     width: 100%;
-    padding: 28px;
+    padding: 24px;
     box-shadow: 7px 8px 0 var(--sk-soft, #b8b3ff);
-    gap: 20px;
+    gap: 18px;
   }
 
   .auth-brand {
@@ -199,32 +294,45 @@
   .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 13px;
   }
 
-  .field-group {
+  .password-wrap {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    align-items: center;
+    gap: 8px;
   }
 
-  .field-label {
-    font-size: 12.5px;
-    font-weight: 700;
+  .password-wrap .input-full {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .eye-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    border: 1.5px solid var(--line);
+    background: var(--surface-alt);
     color: var(--text);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
   }
 
-  .input-full {
-    --sk-input-width: 100%;
-    width: 100%;
+  .eye-btn:hover {
+    border-color: var(--sk-soft, #b8b3ff);
   }
 
-  .input-full :global(sakuga-input) {
-    display: block;
-    width: 100%;
+  .has-error {
+    --sk-ink: #e11d48;
   }
 
   .agree-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     padding-top: 2px;
   }
 
@@ -240,7 +348,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding-top: 16px;
+    padding-top: 14px;
     border-top: 1.5px solid var(--line);
     font-size: 13.5px;
     color: var(--mute);
@@ -261,7 +369,7 @@
 
   @media (max-width: 480px) {
     .auth-card {
-      padding: 20px;
+      padding: 18px;
     }
   }
 </style>
