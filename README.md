@@ -82,8 +82,8 @@ sakuga-dashboard/
 ## Routing
 
 Dashboard menggunakan **Hash Routing** di `src/lib/store.svelte.js` (`PAGE_TO_HASH` & `resolveHash`):
-- `#/overview`, `#/analytics`, `#/tables`, `#/tasks`, `#/components`, `#/studio-form`, `#/profile`, `#/settings`
-- `#/login`, `#/register`, `#/forgot-password`, `#/reset-password`
+- `#/overview`, `#/analytics`, `#/tables`, `#/tasks`, `#/kanban`, `#/calendar`, `#/components`, `#/studio-form`, `#/profile`, `#/billing`, `#/settings`, `#/help`
+- `#/login`, `#/register`, `#/forgot-password`, `#/reset-password`, `#/403`, `#/500`, `#/maintenance`
 - Route yang tidak terdaftar otomatis diarahkan ke `NotFoundView.svelte` (`404`).
 
 ## Theme & App Customization
