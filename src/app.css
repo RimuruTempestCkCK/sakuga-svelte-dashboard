@@ -18,6 +18,8 @@
   --header-h: 72px;
   --radius-lg: 18px;
   --radius-md: 12px;
+  --card-pad: 16px;
+  --stack-gap: 14px;
 }
 
 html[data-theme="dark"] {
@@ -92,7 +94,7 @@ code {
 .page-stack {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--stack-gap);
 }
 
 .card {
@@ -102,7 +104,7 @@ code {
   background: var(--surface);
   border: 1.5px solid var(--line);
   border-radius: var(--radius-lg);
-  padding: 16px;
+  padding: var(--card-pad);
   transition: border-color 0.2s ease, background 0.22s ease, box-shadow 0.2s ease;
 }
 

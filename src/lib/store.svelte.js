@@ -51,6 +51,10 @@ function writePrefs() {
         theme: dashboard.theme,
         lastLightTheme: dashboard.lastLightTheme,
         sidebarCollapsed: dashboard.sidebarCollapsed,
+        accentColor: dashboard.accentColor,
+        borderRadius: dashboard.borderRadius,
+        density: dashboard.density,
+        sidebarStyle: dashboard.sidebarStyle,
         user: {
           name: dashboard.user.name,
           role: dashboard.user.role,
@@ -166,6 +170,10 @@ export const dashboard = $state({
   darkMode: false,
   theme: 'paper',
   lastLightTheme: 'paper',
+  accentColor: '',
+  borderRadius: '18',
+  density: 'comfortable',
+  sidebarStyle: 'default',
   toastEl: null,
   user: {
     name: 'Akira Takahashi',
@@ -205,6 +213,18 @@ export function initDashboard() {
     }
     if (typeof saved.sidebarCollapsed === 'boolean') {
       dashboard.sidebarCollapsed = saved.sidebarCollapsed;
+    }
+    if (typeof saved.accentColor === 'string') {
+      dashboard.accentColor = saved.accentColor;
+    }
+    if (['10', '18', '24'].includes(String(saved.borderRadius))) {
+      dashboard.borderRadius = String(saved.borderRadius);
+    }
+    if (saved.density === 'compact' || saved.density === 'comfortable') {
+      dashboard.density = saved.density;
+    }
+    if (saved.sidebarStyle === 'default' || saved.sidebarStyle === 'tinted') {
+      dashboard.sidebarStyle = saved.sidebarStyle;
     }
     if (saved.user && typeof saved.user === 'object') {
       dashboard.user = {
@@ -299,10 +319,57 @@ export function applyTheme(presetKey, { silent = false } = {}) {
       root.style.setProperty(k, v);
     }
   }
+  applyCustomVars();
   writePrefs();
   if (!silent) {
     logEvent(`Theme switched to ${preset.name}`);
   }
+}
+
+export function applyCustomVars() {
+  if (typeof document === 'undefined') return;
+  const root = document.documentElement;
+  if (dashboard.accentColor) {
+    root.style.setProperty('--sk-acc', dashboard.accentColor);
+  }
+  const r = Number(dashboard.borderRadius) || 18;
+  root.style.setProperty('--radius-lg', `${r}px`);
+  root.style.setProperty('--radius-md', `${Math.max(8, r - 6)}px`);
+  root.style.setProperty('--sk-r', `${Math.max(10, r - 3)}px`);
+
+  if (dashboard.density === 'compact') {
+    root.style.setProperty('--card-pad', '11px 13px');
+    root.style.setProperty('--stack-gap', '10px');
+  } else {
+    root.style.setProperty('--card-pad', '16px');
+    root.style.setProperty('--stack-gap', '14px');
+  }
+
+  root.style.setProperty(
+    '--sidebar-bg',
+    dashboard.sidebarStyle === 'tinted' ? 'var(--surface-alt)' : 'var(--surface)'
+  );
+}
+
+export function setCustomization(patch) {
+  Object.assign(dashboard, patch);
+  if (patch.accentColor === '') {
+    const preset = THEME_PRESETS[dashboard.theme];
+    if (preset && typeof document !== 'undefined') {
+      document.documentElement.style.setProperty('--sk-acc', preset.vars['--sk-acc']);
+    }
+  }
+  applyCustomVars();
+  writePrefs();
+}
+
+export function resetCustomization() {
+  dashboard.accentColor = '';
+  dashboard.borderRadius = '18';
+  dashboard.density = 'comfortable';
+  dashboard.sidebarStyle = 'default';
+  dashboard.sidebarCollapsed = false;
+  applyTheme('paper');
 }
 
 export function toggleDarkMode() {
