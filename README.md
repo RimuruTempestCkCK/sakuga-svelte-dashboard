@@ -11,6 +11,20 @@ Seluruh elemen custom (`<sakuga-button>`, `<sakuga-toggle>`, `<sakuga-slider>`, 
 - **Demo Resmi:** [https://sakuga-vfx.vercel.app](https://sakuga-vfx.vercel.app)
 - **Lisensi Komponen:** MIT License
 
+## Preview Screenshots
+
+### Overview (Light Mode — Paper)
+![Sakuga Dashboard Overview](docs/screenshots/overview-light.png)
+
+### Analytics & Charts (Dark Mode — Midnight Sakuga)
+![Sakuga Dashboard Analytics Dark Mode](docs/screenshots/analytics-dark.png)
+
+### Advanced Data Tables
+![Sakuga Dashboard Data Tables](docs/screenshots/tables-light.png)
+
+### Kanban Board
+![Sakuga Dashboard Kanban Board](docs/screenshots/kanban-light.png)
+
 Skrip komponen dimuat langsung dari `public/sakuga-vfx/` melalui tag `<script>` standar di `index.html` sehingga seluruh efek *spring*, *impact burst*, kepulan asap, *43-frame toggle sprite*, serta huruf efek suara manga (`ドン!`, `カチッ`, `ズザッ`, `ポン`, `ゴゴゴゴ`) berbagi satu canvas `window.SakugaFX`.
 
 ## Tech Stack
