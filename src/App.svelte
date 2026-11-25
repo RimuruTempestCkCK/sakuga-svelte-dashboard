@@ -12,6 +12,8 @@
   import ComponentsView from './lib/views/ComponentsView.svelte';
   import StudioFormView from './lib/views/StudioFormView.svelte';
   import TasksView from './lib/views/TasksView.svelte';
+  import KanbanView from './lib/views/KanbanView.svelte';
+  import CalendarView from './lib/views/CalendarView.svelte';
   import ProfileView from './lib/views/ProfileView.svelte';
   import SettingsView from './lib/views/SettingsView.svelte';
   import LoginView from './lib/views/LoginView.svelte';
@@ -112,6 +114,10 @@
           <StudioFormView />
         {:else if dashboard.page === 'tasks'}
           <TasksView />
+        {:else if dashboard.page === 'kanban'}
+          <KanbanView />
+        {:else if dashboard.page === 'calendar'}
+          <CalendarView />
         {:else if dashboard.page === 'profile'}
           <ProfileView />
         {:else if dashboard.page === 'settings'}

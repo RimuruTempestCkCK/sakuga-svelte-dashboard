@@ -7,6 +7,8 @@ export const PAGE_TO_HASH = {
   analytics: '#/analytics',
   tables: '#/tables',
   tasks: '#/tasks',
+  kanban: '#/kanban',
+  calendar: '#/calendar',
   components: '#/components',
   studio: '#/studio-form',
   profile: '#/profile',

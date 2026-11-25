@@ -21,6 +21,8 @@ export const APP_CONFIG = {
     { id: 'analytics', label: 'Analytics', group: 'Main', icon: 'chart' },
     { id: 'tables', label: 'Data Tables', group: 'Data & Pages', icon: 'table' },
     { id: 'tasks', label: 'Render Queue', group: 'Data & Pages', icon: 'layers' },
+    { id: 'kanban', label: 'Kanban Board', group: 'Data & Pages', icon: 'kanban' },
+    { id: 'calendar', label: 'Calendar', group: 'Data & Pages', icon: 'calendar' },
     { id: 'components', label: 'All 12 Controls', group: 'Data & Pages', icon: 'sparkles' },
     { id: 'studio', label: 'Studio Form', group: 'Data & Pages', icon: 'sliders' },
     { id: 'profile', label: 'Profile', group: 'Account', icon: 'user' },
