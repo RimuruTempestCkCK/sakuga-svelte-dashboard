@@ -15,7 +15,9 @@
   import KanbanView from './lib/views/KanbanView.svelte';
   import CalendarView from './lib/views/CalendarView.svelte';
   import ProfileView from './lib/views/ProfileView.svelte';
+  import BillingView from './lib/views/BillingView.svelte';
   import SettingsView from './lib/views/SettingsView.svelte';
+  import HelpView from './lib/views/HelpView.svelte';
   import LoginView from './lib/views/LoginView.svelte';
   import RegisterView from './lib/views/RegisterView.svelte';
   import ForgotPasswordView from './lib/views/ForgotPasswordView.svelte';
@@ -120,8 +122,12 @@
           <CalendarView />
         {:else if dashboard.page === 'profile'}
           <ProfileView />
+        {:else if dashboard.page === 'billing'}
+          <BillingView />
         {:else if dashboard.page === 'settings'}
           <SettingsView />
+        {:else if dashboard.page === 'help'}
+          <HelpView />
         {/if}
       </main>
     </div>
